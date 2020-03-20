@@ -21,4 +21,4 @@ def GetITFID(wd):
     return(itfid)
 
 print(GetITFID('Q11459'))
-print(GetWTA('Q11459'))
+print(GetWTAID('Q11459'))
