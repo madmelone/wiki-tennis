@@ -19,6 +19,3 @@ def GetITFID(wd):
     #get ITF-ID
     itfid = entity[client.get('P599')]
     return(itfid)
-
-print(GetITFID('Q11459'))
-print(GetWTAID('Q11459'))
