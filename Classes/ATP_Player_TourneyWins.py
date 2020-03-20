@@ -3,20 +3,20 @@
 # Version:  0.1
 # Date:     20-03-2020
 # Content:  Returns the tournament wins of a player on the ATP Tour
+# Apps:     - GetTournamentWins(ATPID, Matchtype="Singles") - Returns List of List of Information on Tournament wins by a player in a matchtype
+#           - PrintTournamentWins(ListTournamentWins, Matchtype = "Singles") - Writes the Tournament Wins to a file in local output format
 
 #Settings
-countryformat = 'de'
 mintourneytier = 2
 excludedtourney = ['World Team Cup', 'World Team Championship']
 filename = 'tournament.txt'
 
 #List of imports
+from Settings import countryformat
+from ClassLocalization import *
 import requests
 from bs4 import BeautifulSoup
 import os
-from datetime import datetime
-import locale
-
 
 
 def GetCountrycode(filepath):
@@ -31,45 +31,6 @@ def GetTourneylevel(filepath):
 def GetTourneyTier(tourneylevel):
     TourneyTier = {'itf':1, 'challenger':2, '250':3, '500':3, 'atp':3, 'atpwt':3, '1000s':4, 'grandslam':5}
     return TourneyTier[tourneylevel]
-
-def LocalDateFormat(datestring, format=countryformat):
-    date = datetime.strptime(datestring, '%Y-%m-%d')
-    if format == 'de':
-        locale.setlocale(locale.LC_TIME, "de_DE")
-        return date.strftime('%d. %B %Y')
-    else:
-        return date.strftime('%Y-%m-%d')
-
-def LocalSurfaceFormat(string, format=countryformat):
-    #Local translations of the English surface names
-    if format == 'de':
-        translation = {'Hard':'Hartplatz', 'Clay':'Sandplatz', 'Grass':'Rasen', 'Carpet':'Teppich'}
-        return translation[string]
-    else:
-        return string
-
-def LocalMatchResultFormat(result, format=countryformat):
-    #Change result to string format if list (in case of tiebreaks)
-    if len(result) > 1:
-        templist = []
-        for i in range(len(result)):
-            templist.append(str(result[i]))
-        result = (''.join(templist))
-
-    setlist = []
-    #Split the individual sets from the result input
-    sets = str(result).strip(',[]\',').split()
-    # Apply chosen format per sets
-    if format == 'de':
-        for i in range(len(sets)):
-            if sets[i] == '(RET)':
-                set = 'Aufgabe'
-            else:
-                set = str(sets[i][0]) + ':' + str(sets[i][1:])
-            setlist.append(set)
-        return (', '.join(setlist))
-    else:
-        return string
 
 def LocalOutputFormat(TournamentInformation, format=countryformat):
     ResultList = []
@@ -95,7 +56,7 @@ def LocalOutputFormat(TournamentInformation, format=countryformat):
     else:
         return string
 
-def GetTournamentwins(ATPID, Matchtype="Singles"):
+def GetTournamentWins(ATPID, Matchtype="Singles"):
     # - ATP-ID from Player-Profile, e.g. H355 for Tommy Haas
     # - Matchtype either Singles (standard) or Doubles
     ListReturn = []
@@ -130,7 +91,6 @@ def GetTournamentwins(ATPID, Matchtype="Singles"):
 
             #Get match result
             PositionMatchResult = PositionOpponent2.findNext('a')
-            #MatchResult = LocalMatchResultFormat(PositionMatchResult.contents)
 
             # Clean MatchResult and tie-break results
             if len(PositionMatchResult.contents) > 1:
@@ -192,5 +152,3 @@ def PrintTournamentWins(ListTournamentWins, Matchtype = "Singles"):
     FileOutput.close()
     print("File written")
 
-a = GetTournamentwins("H355")
-PrintTournamentWins(a)

@@ -7,9 +7,9 @@
 import requests
 from bs4 import BeautifulSoup
 
-def worldranking (competition):
+def GetPlayerRankingTop100(org = "atp", competition="singles"):
 
-    #set variables for singles and doubles ranking
+    #Set URL
     if competition == "singles":
         url = "https://www.atptour.com/en/rankings/singles"
         filename = "top100_singles.csv"
@@ -46,4 +46,4 @@ def worldranking (competition):
             player = str(players[i].get_text()).strip()
             writer.writerow([rank, player])
 
-worldranking("doubles")
+GetPlayerRankingTop100()
