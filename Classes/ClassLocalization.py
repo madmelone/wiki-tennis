@@ -1,10 +1,18 @@
+# Name:     ClassWikidata
+# Author:   Michael Frey
+# Version:  0.1
+# Date:     20-03-2020
+# Content:  Provide functions to interact with Wikidata
 
+#Internal imports
 from Settings import countryformat
+
+#External imports
 from datetime import datetime
 import locale
 
-
 def LocalDateFormat(datestring, format=countryformat):
+    #Returns date in defined local format
     date = datetime.strptime(datestring, '%Y-%m-%d')
     if format == 'de':
         locale.setlocale(locale.LC_TIME, "de_DE")
@@ -13,7 +21,7 @@ def LocalDateFormat(datestring, format=countryformat):
         return date.strftime('%Y-%m-%d')
 
 def LocalSurfaceFormat(string, format=countryformat):
-    #Local translations of the English surface names
+    #Returns surface in translated local format
     if format == 'de':
         translation = {'Hard':'Hartplatz', 'Clay':'Sandplatz', 'Grass':'Rasen', 'Carpet':'Teppich'}
         return translation[string]
@@ -21,6 +29,7 @@ def LocalSurfaceFormat(string, format=countryformat):
         return string
 
 def LocalMatchResultFormat(result, format=countryformat):
+    #Returns match result in defined local format
     #Change result to string format if list (in case of tiebreaks)
     if len(result) > 1:
         templist = []
