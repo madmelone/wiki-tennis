@@ -125,7 +125,7 @@ def GetTournamentWins(ATPID, Matchtype="Singles"):
             PositionTourneyweek = PositionTourneyLevel1.findNext('span', {"class": "tourney-dates"})
             TourneyWeek = PositionTourneyweek.contents[0].strip()
             TourneyWeek2 = TourneyWeek.replace('.','-')
-            TourneyDate = TourneyWeek2[13:23]
+            TourneyDate = TourneyWeek2[-10:]
 
             #Get tournament surface
             PositionTourneySurface1 = PositionTourneyweek.findNext('div', {"class": "icon-court image-icon"})
@@ -161,5 +161,5 @@ def PrintTournamentWins(ListTournamentWins, Matchtype = "Singles"):
     FileOutput.close()
     #print("File written")
 
-a = 'MC10'
+a = 'L018'
 PrintTournamentWins(GetTournamentWins(a))
