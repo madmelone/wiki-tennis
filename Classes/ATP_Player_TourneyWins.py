@@ -14,14 +14,11 @@ filename = 'tournament.txt'
 #List of imports
 from Settings import countryformat
 from ClassLocalization import *
+from ClassSupportFunctions import *
 import requests
 from bs4 import BeautifulSoup
 import os
 
-
-def GetCountrycode(filepath):
-    filename = os.path.basename(filepath)
-    return filename[0:3].upper()
 
 def GetTourneylevel(filepath, TourneyName):
     if 'Olympics' in str(TourneyName):
