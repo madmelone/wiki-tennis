@@ -16,7 +16,10 @@ def LocalDateFormat(datestring, format=countryformat):
     date = datetime.strptime(datestring, '%Y-%m-%d')
     if format == 'de':
         locale.setlocale(locale.LC_TIME, "de_DE")
-        return date.strftime('%d. %B %Y')
+        #Delete leading zero in day of the month
+        day = date.strftime('%d. ').replace('0', '')
+        #Concatenate day and rest of the date
+        return day + date.strftime('%B %Y')
     else:
         return date.strftime('%Y-%m-%d')
 
