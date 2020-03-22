@@ -20,13 +20,19 @@ def LocalDateFormat(datestring, format=countryformat):
     else:
         return date.strftime('%Y-%m-%d')
 
-def LocalSurfaceFormat(string, format=countryformat):
+def LocalSurfaceFormat(Surface, InOut='O', format=countryformat):
     #Returns surface in translated local format
     if format == 'de':
-        translation = {'Hard':'Hartplatz', 'Clay':'Sandplatz', 'Grass':'Rasen', 'Carpet':'Teppich'}
-        return translation[string]
+        #Translate to local values
+        SurfaceTranslation = {'Hard':'Hartplatz', 'Clay':'Sandplatz', 'Grass':'Rasen', 'Carpet':'Teppich'}
+        InOutTranslation = {'I':'Halle', 'O':''}
+        #Apply local format
+        if InOut == 'I':
+            return SurfaceTranslation[Surface] + ' (' + InOutTranslation[InOut] + ')'
+        else:
+            return SurfaceTranslation[Surface]
     else:
-        return string
+        return Surface
 
 def LocalMatchResultFormat(result, format=countryformat):
     #Returns match result in defined local format
@@ -51,3 +57,10 @@ def LocalMatchResultFormat(result, format=countryformat):
         return (', '.join(setlist))
     else:
         return string
+
+def LocalTourneyColorFormat(TourneyTier):
+    TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': 'FFFFCC;'}
+    if TourneyTier not in TourneyColor:
+        return '|-'
+    else:
+        return '|- style = "background:' + str(TourneyColor[TourneyTier]) + '"'

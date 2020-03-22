@@ -7,7 +7,7 @@
 #           - PrintTournamentWins(ListTournamentWins, Matchtype = "Singles") - Writes the Tournament Wins to a file in local output format
 
 #Settings
-mintourneytier = 2
+mintourneytier = 3
 excludedtourney = ['World Team Cup', 'World Team Championship']
 filename = 'tournament.txt'
 
@@ -23,28 +23,34 @@ def GetCountrycode(filepath):
     filename = os.path.basename(filepath)
     return filename[0:3].upper()
 
-def GetTourneylevel(filepath):
-    filename = os.path.basename(filepath)
-    level = filename.split('_',2)
-    return level[1]
+def GetTourneylevel(filepath, TourneyName):
+    if 'Olympics' in str(TourneyName):
+        return 'olmypics'
+    else:
+        filename = os.path.basename(filepath)
+        level = filename.split('_',2)
+        if level[0] == 'nitto':
+            return 'tourfinals'
+        else:
+            return level[1]
 
 def GetTourneyTier(tourneylevel):
-    TourneyTier = {'itf':1, 'challenger':2, '250':3, '500':3, 'atp':3, 'atpwt':3, '1000s':4, 'grandslam':5}
+    TourneyTier = {'itf':1, 'challenger':2, '250':3, '500':3, 'atp':3, 'atpwt':3, '1000s':4, 'grandslam':5, 'olmypics':5, 'tourfinals':5}
     return TourneyTier[tourneylevel]
 
 def LocalOutputFormat(TournamentInformation, format=countryformat):
     ResultList = []
     if format == 'de':
-        #Print start of row
-        ResultList.append('|-')
+        #Print start of row and apply potential color coding
+        ResultList.append(LocalTourneyColorFormat(TournamentInformation[7]))
         #Print tournament win number
-        ResultList.append('| ' + TournamentInformation[0] + '.')
+        ResultList.append('| ' + str(TournamentInformation[0]) + '.')
         #Print tournament date
         ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10])))
         #Print tournament location
         ResultList.append('| ' + str(TournamentInformation[5]))
         #Print tournament surface
-        ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11])))
+        ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12])))
         #Print opponent
         ResultList.append('| {{' + str(TournamentInformation[1]) + '|' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + '}}')
         #Print result
@@ -101,17 +107,19 @@ def GetTournamentWins(ATPID, Matchtype="Singles"):
             else:
                 MatchResult = str(PositionMatchResult.contents).strip(',[]\',').rstrip()
 
-            #Get tournament level
+            #Get tournament level (part 1, continues after tournament name)
             PositionTourneyLevel1 = PositionOpponentrank.findPrevious('td', { "class" : "tourney-badge-wrapper"})
             PositionTourneyLevel2 = PositionTourneyLevel1.findNext('img')['src']
-            TourneyLevel = GetTourneylevel(PositionTourneyLevel2)
-            TourneyTier = GetTourneyTier(TourneyLevel)
 
             #Get tournament name and location
             PositionTourneyName = PositionTourneyLevel1.findNext('a', { "class" : "tourney-title"})
             TourneyName = PositionTourneyName.contents[0].strip()
             TourneyID = PositionTourneyName['href'].split('/')[4].strip()
             TourneyLocation = PositionTourneyLevel1.findNext('span', { "class" : "tourney-location"}).contents[0].strip()
+
+            #Get tournament level (part 2, continued from before tournament name
+            TourneyLevel = GetTourneylevel(PositionTourneyLevel2, TourneyName)
+            TourneyTier = GetTourneyTier(TourneyLevel)
 
             #Get tournament finals day
             PositionTourneyweek = PositionTourneyLevel1.findNext('span', {"class": "tourney-dates"})
@@ -123,10 +131,11 @@ def GetTournamentWins(ATPID, Matchtype="Singles"):
             PositionTourneySurface1 = PositionTourneyweek.findNext('div', {"class": "icon-court image-icon"})
             PositionTourneySurface2 = PositionTourneySurface1.findNext('div', {"class": "info-area"})
             TourneySurface = PositionTourneySurface2.findNext('span', {"class": "item-value"}).contents[0].strip()
+            TourneySurfaceInOut = PositionTourneySurface2.findNext('div', {"class": "item-details"}).contents[0].strip()
 
             #Return values if tournament minimum level is reached AND is not tournament is not World Team Cup
             if int(TourneyTier) >= mintourneytier and TourneyName not in excludedtourney:
-                ListReturn.append([OpponentCountrycode, OpponentName, OpponentID, MatchResult, TourneyName, TourneyID, TourneyLevel, TourneyTier, TourneyLocation, TourneyDate, TourneySurface])
+                ListReturn.append([OpponentCountrycode, OpponentName, OpponentID, MatchResult, TourneyName, TourneyID, TourneyLevel, TourneyTier, TourneyLocation, TourneyDate, TourneySurface, TourneySurfaceInOut])
 
     #Order tournaments in reverse to oldest to newest
     ListReturn.reverse()
@@ -150,5 +159,7 @@ def PrintTournamentWins(ListTournamentWins, Matchtype = "Singles"):
     #Write Footer and close file
     FileOutput.write('|}')
     FileOutput.close()
-    print("File written")
+    #print("File written")
 
+a = 'MC10'
+PrintTournamentWins(GetTournamentWins(a))
