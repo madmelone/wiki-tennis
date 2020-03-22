@@ -5,6 +5,7 @@
 # Content:  Provide functions to interact with Wikidata
 
 def GetWTAID(wd):
+    #Returns WTA-ID by Wikidata-ID
     from wikidata.client import Client
     client = Client()
     entity = client.get(wd, load=True)
@@ -13,6 +14,7 @@ def GetWTAID(wd):
     return(wtaid)
 
 def GetITFID(wd):
+    # Returns ITF-ID by Wikidata-ID
     from wikidata.client import Client
     client = Client()
     entity = client.get(wd, load=True)

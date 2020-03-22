@@ -1,26 +1,44 @@
+# Name:     ClassWikidata
+# Author:   Michael Frey
+# Version:  0.1
+# Date:     20-03-2020
+# Content:  Provide functions to interact with Wikidata
 
+#Internal imports
 from Settings import countryformat
+
+#External imports
 from datetime import datetime
 import locale
 
-
 def LocalDateFormat(datestring, format=countryformat):
+    #Returns date in defined local format
     date = datetime.strptime(datestring, '%Y-%m-%d')
     if format == 'de':
         locale.setlocale(locale.LC_TIME, "de_DE")
-        return date.strftime('%d. %B %Y')
+        #Delete leading zero in day of the month
+        day = date.strftime('%d. ').replace('0', '')
+        #Concatenate day and rest of the date
+        return day + date.strftime('%B %Y')
     else:
         return date.strftime('%Y-%m-%d')
 
-def LocalSurfaceFormat(string, format=countryformat):
-    #Local translations of the English surface names
+def LocalSurfaceFormat(Surface, InOut='O', format=countryformat):
+    #Returns surface in translated local format
     if format == 'de':
-        translation = {'Hard':'Hartplatz', 'Clay':'Sandplatz', 'Grass':'Rasen', 'Carpet':'Teppich'}
-        return translation[string]
+        #Translate to local values
+        SurfaceTranslation = {'Hard':'Hartplatz', 'Clay':'Sandplatz', 'Grass':'Rasen', 'Carpet':'Teppich'}
+        InOutTranslation = {'I':'Halle', 'O':''}
+        #Apply local format
+        if InOut == 'I':
+            return SurfaceTranslation[Surface] + ' (' + InOutTranslation[InOut] + ')'
+        else:
+            return SurfaceTranslation[Surface]
     else:
-        return string
+        return Surface
 
 def LocalMatchResultFormat(result, format=countryformat):
+    #Returns match result in defined local format
     #Change result to string format if list (in case of tiebreaks)
     if len(result) > 1:
         templist = []
@@ -42,3 +60,10 @@ def LocalMatchResultFormat(result, format=countryformat):
         return (', '.join(setlist))
     else:
         return string
+
+def LocalTourneyColorFormat(TourneyTier):
+    TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': 'FFFFCC;'}
+    if TourneyTier not in TourneyColor:
+        return '|-'
+    else:
+        return '|- style = "background:' + str(TourneyColor[TourneyTier]) + '"'
