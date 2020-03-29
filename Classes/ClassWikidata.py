@@ -1,8 +1,11 @@
 # Name:     ClassWikidata
 # Author:   Michael Frey
-# Version:  0.1
-# Date:     20-03-2020
+# Version:  0.2
+# Date:     29-03-2020
 # Content:  Provide functions to interact with Wikidata
+
+#List of imports
+from Settings import countryformat
 
 def GetWTAID(wd):
     #Returns WTA-ID by Wikidata-ID
@@ -30,3 +33,61 @@ def GetATPID(wd):
     #get WTA-ID
     wtaid = entity[client.get('P536')]
     return(atpid)
+
+
+def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
+    from SPARQLWrapper import SPARQLWrapper, JSON
+    endpoint_url = "https://query.wikidata.org/sparql"
+
+    query = """SELECT DISTINCT ?player ?playerLabel ?Wikipedia ?Wikipedia_language_code ?sitelink ?country_code             
+            WHERE {
+              VALUES ?Player_ID { "%s" }
+              VALUES ?language_code { "%s" }
+
+              # Find the player
+              ?player wdt:P536 ?Player_ID.
+
+              # Find the Wikipedia, its language(s), and sitelink for the Wikipedia
+              BIND (URI(CONCAT("https://", ?language_code, ".wikipedia.org/")) AS ?Wikipedia)
+              ?sitelink schema:about ?player.
+              ?sitelink schema:isPartOf ?Wikipedia.
+              ?Wikipedia ^wdt:P856/wdt:P407/wdt:P424 ?Wikipedia_language_code. hint:Prior hint:gearing "forward".
+
+              # Find player's label in the language(s)
+              ?player rdfs:label ?playerLabel.
+              FILTER (LANG(?playerLabel) = ?Wikipedia_language_code)
+
+              # Find the country/ies and country code(s)
+              OPTIONAL { ?player wdt:P1532 ?represents. }
+              ?player wdt:P27 ?citizenship.
+              BIND (COALESCE(?represents, ?citizenship) AS ?country)
+              ?country wdt:P298 ?country_code.
+            }""" % (PlayerID, LanguageFormat)
+
+    sparql = SPARQLWrapper(endpoint_url)
+    sparql.setQuery(query)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+
+    dic = results["results"]["bindings"][0]
+    ReturnList = []
+    # Get Wikidata Link
+    WDLink = dic['player']['value']
+    ReturnList.append(WDLink)
+    # Get Wikidata Q-ID
+    WDID = dic['player']['value'].split('entity/')[1]
+    ReturnList.append(WDID)
+    # Get Player Label in local format
+    PlayerLabel = dic['playerLabel']['value']
+    ReturnList.append(PlayerLabel)
+    # Get article lemma in local format
+    WPLemma = dic['sitelink']['value'].split('wiki/')[1]
+    ReturnList.append(WPLemma)
+    # Player Countrycode
+    PlayerCountry = dic['country_code']['value']
+    ReturnList.append(PlayerCountry)
+
+    return ReturnList
+
+
+
