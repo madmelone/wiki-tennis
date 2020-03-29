@@ -21,3 +21,12 @@ def GetITFID(wd):
     #get ITF-ID
     itfid = entity[client.get('P599')]
     return(itfid)
+
+def GetATPID(wd):
+    #Returns ATP-ID by Wikidata-ID
+    from wikidata.client import Client
+    client = Client()
+    entity = client.get(wd, load=True)
+    #get WTA-ID
+    wtaid = entity[client.get('P536')]
+    return(atpid)
