@@ -53,7 +53,7 @@ def LocalOutputFormat(TournamentInformation, format=countryformat):
         #Print result
         ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4])))
         ResultList.append('')
-        #setlist.append(set)
+        #Join list
         OutputList = ('\n'.join(ResultList))
         return (OutputList)
     else:
