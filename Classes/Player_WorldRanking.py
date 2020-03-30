@@ -32,7 +32,12 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + '|' \
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
-                        + '<small>in progress</small>')
+                        + '<small>')
+        #Print sitelinks
+        sitelinks = WikidataGetPlayerLinks(RankingInformation[4])
+        for i in range(len(sitelinks)):
+            ResultList.append('([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
+        ResultList.append('</small>')
         ResultList.append('')
         #Join list
         OutputList = ('\n'.join(ResultList))
@@ -95,22 +100,26 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
         #Get Player Rank
         PlayerRank = str(PositionRank[i].get_text()).strip()
 
-        #Next Block is deprecated after Wikidata integration
-        #Get Player Country Code
+        #Get ATP ID
         PositionCountry = PositionRank[i].findNext('td', {"class": "country-cell"})
-        #PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
-        #Get Player Name
         PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
         PositionName2 = PositionName1.findNext('a')
-        #PlayerName = PositionName2.contents[0].strip()
         PlayerATPID = PositionName2['href'].split('/')[4].strip().upper()
 
-        #Derive Player information from Wikidata by ATP-ID
-        WikidataPlayerInfo = WikidataGetPlayerInfo('atp', PlayerATPID, countryformat)
-        PlayerQID = str(WikidataPlayerInfo[1])
-        PlayerName = str(WikidataPlayerInfo[2])
-        PlayerLemma = str(WikidataPlayerInfo[3])
-        PlayerCountry = str(WikidataPlayerInfo[4])
+
+        try:
+            # Derive Player information from Wikidata by ATP-ID
+            WikidataPlayerInfo = WikidataGetPlayerInfo('atp', PlayerATPID, countryformat)
+            PlayerQID = str(WikidataPlayerInfo[1])
+            PlayerName = str(WikidataPlayerInfo[2])
+            PlayerLemma = str(WikidataPlayerInfo[3])
+            PlayerCountry = str(WikidataPlayerInfo[4])
+        except:
+            # If Wikidata query does not work, get information from ATP website
+            PlayerName = PositionName2.contents[0].strip()
+            PlayerLemma = PlayerName
+            PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
+
 
         ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, PlayerATPID])
     return ListReturn
@@ -130,7 +139,6 @@ def GetITFWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
 def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     filename = "worldranking.txt"
     FileOutput = open(filename, 'a', encoding='utf-8')
-    print(RankingList)
 
     # Write Header
     OutputHeader = '=== World Ranking ===\n'
@@ -149,7 +157,7 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.write(OutputMeta)
 
     #Write world ranking table header
-    OutputTableHeader = '\n\n\n{| class="wikitable"\n|+\n!#\n!Player\n!Other Languages\n'
+    OutputTableHeader = '\n\n\n{| class="wikitable"\n|+\n! style="width: 5em" |#\n! style="width: 30em" | Player\n!Other Languages\n'
     FileOutput.write(OutputTableHeader)
 
     #Write world ranking table contents
@@ -160,4 +168,3 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.write('|}')
     FileOutput.close()
     print("File written")
-
