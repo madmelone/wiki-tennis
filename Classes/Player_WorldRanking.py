@@ -4,11 +4,20 @@
 # Date:     29-03-2020
 # Content:  Returns the tennis world rankings
 
-from ClassLocalization import *
-import requests
+# -*- coding: utf-8 -*-
+
+#Internal imports
 from ClassSupportFunctions import *
+from ClassLocalization import *
+from ClassWikidata import *
+
+#External imports
+import requests
 from Settings import countryformat
 from bs4 import BeautifulSoup
+
+from Classes.ClassWikidata import WikidataGetPlayerInfo
+
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
     ResultList = []
@@ -19,11 +28,16 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + '\n| {{' \
                         + str(RankingInformation[1]) \
                         + '|' \
-                        + str(RankingInformation[2]) \
+                        + str(RankingInformation[3]) \
                         + '|' \
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
-                        + '<small>in progress</small>')
+                        + '<small>')
+        #Print sitelinks
+        sitelinks = WikidataGetPlayerLinks(RankingInformation[4])
+        for i in range(len(sitelinks)):
+            ResultList.append('([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
+        ResultList.append('</small>')
         ResultList.append('')
         #Join list
         OutputList = ('\n'.join(ResultList))
@@ -85,16 +99,29 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
     for i in range(len(PositionRank)):
         #Get Player Rank
         PlayerRank = str(PositionRank[i].get_text()).strip()
-        #Get Player Country Code
+
+        #Get ATP ID
         PositionCountry = PositionRank[i].findNext('td', {"class": "country-cell"})
-        PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
-        #Get Player Name
         PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
         PositionName2 = PositionName1.findNext('a')
-        PlayerName = PositionName2.contents[0].strip()
-        PlayerATPID = PositionName2['href'].split('/')[4].strip()
+        PlayerATPID = PositionName2['href'].split('/')[4].strip().upper()
 
-        ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerATPID])
+
+        try:
+            # Derive Player information from Wikidata by ATP-ID
+            WikidataPlayerInfo = WikidataGetPlayerInfo('atp', PlayerATPID, countryformat)
+            PlayerQID = str(WikidataPlayerInfo[1])
+            PlayerName = str(WikidataPlayerInfo[2])
+            PlayerLemma = str(WikidataPlayerInfo[3])
+            PlayerCountry = str(WikidataPlayerInfo[4])
+        except:
+            # If Wikidata query does not work, get information from ATP website
+            PlayerName = PositionName2.contents[0].strip()
+            PlayerLemma = PlayerName
+            PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
+
+
+        ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, PlayerATPID])
     return ListReturn
 
 def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = ''):
@@ -111,8 +138,7 @@ def GetITFWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
 
 def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     filename = "worldranking.txt"
-    FileOutput = open(filename, "a")
-    print(RankingList)
+    FileOutput = open(filename, 'a', encoding='utf-8')
 
     # Write Header
     OutputHeader = '=== World Ranking ===\n'
@@ -131,7 +157,7 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.write(OutputMeta)
 
     #Write world ranking table header
-    OutputTableHeader = '\n\n\n{| class="wikitable"\n|+\n!#\n!Player\n!Other Languages\n'
+    OutputTableHeader = '\n\n\n{| class="wikitable"\n|+\n! style="width: 5em" |#\n! style="width: 30em" | Player\n!Other Languages\n'
     FileOutput.write(OutputTableHeader)
 
     #Write world ranking table contents
@@ -142,6 +168,3 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.write('|}')
     FileOutput.close()
     print("File written")
-
-#a= GetWorldRanking('atp', 'singles', 500, '2020-03-16')
-#PrintRanking(a, 'atp', 'singles', 500, '2020-03-16')
