@@ -37,6 +37,7 @@ def GetATPID(wd):
 
 def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
     from SPARQLWrapper import SPARQLWrapper, JSON
+    import urllib.parse
     endpoint_url = "https://query.wikidata.org/sparql"
 
     query = """SELECT DISTINCT ?player ?playerLabel ?Wikipedia ?Wikipedia_language_code ?sitelink ?country_code             
@@ -81,13 +82,10 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
     PlayerLabel = dic['playerLabel']['value']
     ReturnList.append(PlayerLabel)
     # Get article lemma in local format
-    WPLemma = dic['sitelink']['value'].split('wiki/')[1]
+    WPLemma = urllib.parse.unquote(dic['sitelink']['value'].split('wiki/')[1])
     ReturnList.append(WPLemma)
     # Player Countrycode
     PlayerCountry = dic['country_code']['value']
     ReturnList.append(PlayerCountry)
 
     return ReturnList
-
-
-

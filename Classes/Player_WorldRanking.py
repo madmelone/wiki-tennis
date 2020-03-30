@@ -4,11 +4,20 @@
 # Date:     29-03-2020
 # Content:  Returns the tennis world rankings
 
-from ClassLocalization import *
-import requests
+# -*- coding: utf-8 -*-
+
+#Internal imports
 from ClassSupportFunctions import *
+from ClassLocalization import *
+from ClassWikidata import *
+
+#External imports
+import requests
 from Settings import countryformat
 from bs4 import BeautifulSoup
+
+from Classes.ClassWikidata import WikidataGetPlayerInfo
+
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
     ResultList = []
@@ -19,7 +28,7 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + '\n| {{' \
                         + str(RankingInformation[1]) \
                         + '|' \
-                        + str(RankingInformation[2]) \
+                        + str(RankingInformation[3]) \
                         + '|' \
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
@@ -85,16 +94,25 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
     for i in range(len(PositionRank)):
         #Get Player Rank
         PlayerRank = str(PositionRank[i].get_text()).strip()
+
+        #Next Block is deprecated after Wikidata integration
         #Get Player Country Code
         PositionCountry = PositionRank[i].findNext('td', {"class": "country-cell"})
-        PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
+        #PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
         #Get Player Name
         PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
         PositionName2 = PositionName1.findNext('a')
-        PlayerName = PositionName2.contents[0].strip()
-        PlayerATPID = PositionName2['href'].split('/')[4].strip()
+        #PlayerName = PositionName2.contents[0].strip()
+        PlayerATPID = PositionName2['href'].split('/')[4].strip().upper()
 
-        ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerATPID])
+        #Derive Player information from Wikidata by ATP-ID
+        WikidataPlayerInfo = WikidataGetPlayerInfo('atp', PlayerATPID, countryformat)
+        PlayerQID = str(WikidataPlayerInfo[1])
+        PlayerName = str(WikidataPlayerInfo[2])
+        PlayerLemma = str(WikidataPlayerInfo[3])
+        PlayerCountry = str(WikidataPlayerInfo[4])
+
+        ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, PlayerATPID])
     return ListReturn
 
 def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = ''):
@@ -111,7 +129,7 @@ def GetITFWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
 
 def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     filename = "worldranking.txt"
-    FileOutput = open(filename, "a")
+    FileOutput = open(filename, 'a', encoding='utf-8')
     print(RankingList)
 
     # Write Header
@@ -143,5 +161,3 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.close()
     print("File written")
 
-#a= GetWorldRanking('atp', 'singles', 500, '2020-03-16')
-#PrintRanking(a, 'atp', 'singles', 500, '2020-03-16')
