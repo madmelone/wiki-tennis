@@ -34,7 +34,7 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + '}}\n|' \
                         + '<small>')
         #Print sitelinks
-        sitelinks = WikidataGetPlayerLinks(RankingInformation[4])
+        sitelinks = RankingInformation[4]
         for i in range(len(sitelinks)):
             ResultList.append('([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
         ResultList.append('</small>')
@@ -55,7 +55,7 @@ def GetWorldRanking(RankingOrg = 'atp', MatchType = 'singles', RankingCut = '100
     else:
         exit('Incorrect Ranking Organisation')
 
-def GetATPWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = ''):
+def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
 
     #Check input parameters
     #MatchType can only be singles or doubles
@@ -94,34 +94,48 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
     soup = BeautifulSoup(req.text, "html.parser")
 
     #Read ranking and player information
+    ListIDs = []
     ListReturn = []
+
     PositionRank = soup.findAll("td", {"class": "rank-cell"})
     for i in range(len(PositionRank)):
         #Get Player Rank
         PlayerRank = str(PositionRank[i].get_text()).strip()
 
-        #Get ATP ID
+        #Get ATP ID of each player
         PositionCountry = PositionRank[i].findNext('td', {"class": "country-cell"})
         PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
         PositionName2 = PositionName1.findNext('a')
         PlayerATPID = PositionName2['href'].split('/')[4].strip().upper()
+        ListIDs.append(PlayerATPID)
+    #Format list to string
+    InputIDs = '\"' + '\"\n\"'.join(ListIDs) + '\"'
 
-
-        try:
-            # Derive Player information from Wikidata by ATP-ID
-            WikidataPlayerInfo = WikidataGetPlayerInfo('atp', PlayerATPID, countryformat)
-            PlayerQID = str(WikidataPlayerInfo[1])
-            PlayerName = str(WikidataPlayerInfo[2])
-            PlayerLemma = str(WikidataPlayerInfo[3])
-            PlayerCountry = str(WikidataPlayerInfo[4])
-        except:
-            # If Wikidata query does not work, get information from ATP website
+    try:
+        #Derive Player information from Wikidata by ATP-ID
+        WikidataPlayerInfo = WikidataGetPlayerInfo('atp', InputIDs, countryformat)
+        for n in range(len(WikidataPlayerInfo)):
+            Sitelinks = []
+            PlayerRank = str(WikidataPlayerInfo[n][2])
+            #PlayerQID = str(WikidataPlayerInfo[n][0])
+            PlayerName = str(WikidataPlayerInfo[n][3])
+            PlayerLemma = str(WikidataPlayerInfo[n][4])
+            PlayerCountry = str(WikidataPlayerInfo[n][5])
+            Sitelinks = WikidataPlayerInfo[n][6]
+            ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, Sitelinks])
+    except:
+        # If Wikidata query does not work, get information from ATP website
+        for m in range(len(PositionRank)):
+            # Get Player Rank
+            PlayerRank = str(PositionRank[i].get_text()).strip()
+            PositionCountry = PositionRank[m].findNext('td', {"class": "country-cell"})
+            PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
+            PositionName2 = PositionName1.findNext('a')
             PlayerName = PositionName2.contents[0].strip()
             PlayerLemma = PlayerName
             PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
-
-
-        ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, PlayerATPID])
+            Sitelinks = '-'
+            ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, Sitelinks])
     return ListReturn
 
 def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = ''):
@@ -168,3 +182,6 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.write('|}')
     FileOutput.close()
     print("File written")
+
+a = GetWorldRanking('atp', 'singles', 10, '2020-03-16')
+PrintRanking(a, 'atp', 'singles', 10, '2020-03-16')
