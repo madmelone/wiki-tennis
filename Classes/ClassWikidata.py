@@ -44,14 +44,14 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
     import urllib.parse
     endpoint_url = "https://query.wikidata.org/sparql"
 
-    query = """SELECT DISTINCT ?player ?playerLabel ?PlayerID ?playerlink ?country_code
+    q = """SELECT DISTINCT ?player ?playerLabel ?PlayerID ?playerlink ?country_code
                 ?ar_sitelink ?de_sitelink ?en_sitelink ?es_sitelink ?fa_sitelink ?fr_sitelink ?it_sitelink ?ja_sitelink ?nl_sitelink ?pl_sitelink ?pt_sitelink ?ru_sitelink 
   WHERE {
-  VALUES ?PlayerID { %s }
+  VALUES ?PlayerID { "%s" }
   VALUES ?language_code { "%s" }
 
   # Find the player
-  ?player wdt:P536 ?PlayerID.
+  ?player wdt:%s ?PlayerID.
 
   # Find the Wikipedia, its language(s), and sitelink for the Wikipedia
   BIND (URI(CONCAT("https://", ?language_code, ".wikipedia.org/")) AS ?Wikipedia)
@@ -125,7 +125,14 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
   SERVICE wikibase:label {
     bd:serviceParam wikibase:language "en" .
   }
-}""" % (PlayerID, LanguageFormat)
+}"""
+    # Include variables into query and chose the respective player-id
+    if RankingOrg == 'atp':
+        query = q % (PlayerID, LanguageFormat, 'P536')
+    elif RankingOrg == 'wta':
+        query = q % (PlayerID, LanguageFormat, 'P597')
+    elif RankingOrg == 'itf':
+        query = q % (PlayerID, LanguageFormat, 'P599')
     # Run SPAQRL-query with Agent accorcding to Wikimedia User Agent Policy
     sparql = SPARQLWrapper(endpoint_url,
                            agent='wiki-tennis/0.2 (https://toolsadmin.wikimedia.org/tools/id/wiki-tennis; michael.frey@wikipedia.de)')
