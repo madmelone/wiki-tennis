@@ -1,48 +1,52 @@
 # Name:     ClassWikidata
 # Author:   Michael Frey
-# Version:  0.2
-# Date:     29-03-2020
+# Version:  0.21
+# Date:     05-04-2020
 # Content:  Provide functions to interact with Wikidata
 
-#List of imports
+# List of imports
 from Settings import countryformat
 
+
 def GetWTAID(wd):
-    #Returns WTA-ID by Wikidata-ID
+    # Returns WTA-ID by Wikidata-ID
     from wikidata.client import Client
     client = Client()
     entity = client.get(wd, load=True)
-    #get WTA-ID
+    # get WTA-ID
     wtaid = entity[client.get('P597')]
-    return(wtaid)
+    return (wtaid)
+
 
 def GetITFID(wd):
     # Returns ITF-ID by Wikidata-ID
     from wikidata.client import Client
     client = Client()
     entity = client.get(wd, load=True)
-    #get ITF-ID
+    # get ITF-ID
     itfid = entity[client.get('P599')]
-    return(itfid)
+    return (itfid)
+
 
 def GetATPID(wd):
-    #Returns ATP-ID by Wikidata-ID
+    # Returns ATP-ID by Wikidata-ID
     from wikidata.client import Client
     client = Client()
     entity = client.get(wd, load=True)
-    #get WTA-ID
+    # get WTA-ID
     wtaid = entity[client.get('P536')]
-    return(atpid)
+    return (atpid)
 
 
 def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
+    LanguageFormat = "de"
     from SPARQLWrapper import SPARQLWrapper, JSON
     import urllib.parse
     endpoint_url = "https://query.wikidata.org/sparql"
 
-    query = """SELECT DISTINCT ?player ?playerLabel ?PlayerID ?Wikipedia ?Wikipedia_language_code ?sitelink ?country_code
+    query = """SELECT DISTINCT ?player ?playerLabel ?PlayerID ?playerlink ?country_code
                 ?ar_sitelink ?de_sitelink ?en_sitelink ?es_sitelink ?fa_sitelink ?fr_sitelink ?it_sitelink ?ja_sitelink ?nl_sitelink ?pl_sitelink ?pt_sitelink ?ru_sitelink 
-WHERE {
+  WHERE {
   VALUES ?PlayerID { %s }
   VALUES ?language_code { "%s" }
 
@@ -51,13 +55,17 @@ WHERE {
 
   # Find the Wikipedia, its language(s), and sitelink for the Wikipedia
   BIND (URI(CONCAT("https://", ?language_code, ".wikipedia.org/")) AS ?Wikipedia)
-  ?sitelink schema:about ?player.
-  ?sitelink schema:isPartOf ?Wikipedia.
-  ?Wikipedia ^wdt:P856/wdt:P407/wdt:P424 ?Wikipedia_language_code. hint:Prior hint:gearing "forward".
+  OPTIONAL {
+    ?playerlink schema:about ?player.
+    ?playerlink schema:isPartOf ?Wikipedia.
+  }
 
   # Find player's label in the language(s)
-  ?player rdfs:label ?playerLabel.
-  FILTER (LANG(?playerLabel) = ?Wikipedia_language_code)
+  OPTIONAL {
+    VALUES ?language_code { "de" }    # Language code for player label
+    ?player rdfs:label ?playerLabel.
+    FILTER (LANG(?playerLabel) = ?language_code)
+  }
 
   # Find the country/ies and country code(s)
   OPTIONAL { ?player wdt:P1532 ?represents. }
@@ -114,14 +122,18 @@ WHERE {
     ?ru_sitelink schema:about ?player.
     ?ru_sitelink schema:isPartOf <https://ru.wikipedia.org/>.
   }
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en" .
+  }
 }""" % (PlayerID, LanguageFormat)
-
-    sparql = SPARQLWrapper(endpoint_url)
+    # Run SPAQRL-query with Agent accorcding to Wikimedia User Agent Policy
+    sparql = SPARQLWrapper(endpoint_url,
+                           agent='wiki-tennis/0.2 (https://toolsadmin.wikimedia.org/tools/id/wiki-tennis; michael.frey@wikipedia.de)')
+    sparql.setMethod('POST')
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
     dic = results["results"]["bindings"]
-
     # Split Player ID string to a list in order of the world ranks
     PlayerIDList = list(PlayerID.replace('"', '').replace('\n', ' ').split(' '))
     # Initiate Return List outside the loop
@@ -141,8 +153,11 @@ WHERE {
         # Get Player Label in local format
         PlayerLabel = dic[i]['playerLabel']['value']
         PlayerInfo.append(PlayerLabel)
-        # Get article lemma in local format
-        WPLemma = urllib.parse.unquote(dic[i]['sitelink']['value'].split('wiki/')[1])
+        # Get article lemma in local format or return player Label as fallback to create link
+        try:
+            WPLemma = urllib.parse.unquote(dic[i]['playerlink']['value'].split('wiki/')[1])
+        except KeyError:
+            WPLemma = PlayerLabel
         PlayerInfo.append(WPLemma)
         # Player Countrycode
         PlayerCountry = dic[i]['country_code']['value']
@@ -152,7 +167,7 @@ WHERE {
         Templist = []
         for n in range(len(keys)):
             Sitelinks = []
-            if "sitelink" in keys[n]:
+            if "_sitelink" in keys[n]:
                 # Get the values in case the key contains "sitelink"
                 values = list(dic[i].values())[n]['value']
                 # Get language code as the first two characters after https://
@@ -172,7 +187,8 @@ WHERE {
     ReturnList.sort(key=lambda x: x[2])
     return ReturnList
 
-def WikidataGetPlayerLinks(PlayerID, LanguageFormat = countryformat):
+
+def WikidataGetPlayerLinks(PlayerID, LanguageFormat=countryformat):
     from SPARQLWrapper import SPARQLWrapper, JSON
     import urllib.parse
     endpoint_url = "https://query.wikidata.org/sparql"
@@ -200,7 +216,6 @@ def WikidataGetPlayerLinks(PlayerID, LanguageFormat = countryformat):
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
     sitelinks = results['results']['bindings']
-
     ReturnList = []
     for i in range(len(sitelinks)):
         LinkList = []
