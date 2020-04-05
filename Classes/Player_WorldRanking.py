@@ -1,7 +1,7 @@
 # Name:     Player World Ranking
 # Author:   Michael Frey
-# Version:  0.2
-# Date:     29-03-2020
+# Version:  0.21
+# Date:     05-04-2020
 # Content:  Returns the tennis world rankings
 
 # -*- coding: utf-8 -*-
@@ -9,19 +9,18 @@
 #Internal imports
 from ClassSupportFunctions import *
 from ClassLocalization import *
-from ClassWikidata import *
+from notevengibberish import *
 
 #External imports
 import requests
 from Settings import countryformat
 from bs4 import BeautifulSoup
 
-from Classes.ClassWikidata import WikidataGetPlayerInfo
-
+#from Classes.ClassWikidata import WikidataGetPlayerInfo
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
     ResultList = []
-    if format == 'de':
+    if format == 'de' or format == 'ja':
         #Print ranking number number
         ResultList.append('|- \n| ' \
                         + str(RankingInformation[0]) \
@@ -33,13 +32,18 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
                         + '<small>')
-        #Print sitelinks
+        # Print sitelinks
         sitelinks = RankingInformation[4]
-        for i in range(len(sitelinks)):
-            ResultList.append('([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
-        ResultList.append('</small>')
-        ResultList.append('')
-        #Join list
+        if sitelinks == '-':
+            ResultList.append('-</small>')
+            ResultList.append('')
+        else:
+            for i in range(len(sitelinks)):
+                ResultList.append(
+                    '([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
+            ResultList.append('</small>')
+            ResultList.append('')
+        # Join list
         OutputList = ('\n'.join(ResultList))
         return (OutputList)
     else:
@@ -110,10 +114,10 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
         ListIDs.append(PlayerATPID)
     #Format list to string
     InputIDs = '\"' + '\"\n\"'.join(ListIDs) + '\"'
-
     try:
         #Derive Player information from Wikidata by ATP-ID
         WikidataPlayerInfo = WikidataGetPlayerInfo('atp', InputIDs, countryformat)
+
         for n in range(len(WikidataPlayerInfo)):
             Sitelinks = []
             PlayerRank = str(WikidataPlayerInfo[n][2])
@@ -127,7 +131,7 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
         # If Wikidata query does not work, get information from ATP website
         for m in range(len(PositionRank)):
             # Get Player Rank
-            PlayerRank = str(PositionRank[i].get_text()).strip()
+            PlayerRank = str(m + 1)
             PositionCountry = PositionRank[m].findNext('td', {"class": "country-cell"})
             PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
             PositionName2 = PositionName1.findNext('a')
@@ -182,6 +186,3 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
     FileOutput.write('|}')
     FileOutput.close()
     print("File written")
-
-a = GetWorldRanking('atp', 'singles', 10, '2020-03-16')
-PrintRanking(a, 'atp', 'singles', 10, '2020-03-16')
