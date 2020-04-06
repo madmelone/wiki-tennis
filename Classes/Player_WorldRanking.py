@@ -140,6 +140,30 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
             PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
             Sitelinks = '-'
             ListReturn.append([PlayerRank, PlayerCountry, PlayerName, PlayerLemma, Sitelinks])
+    #Add information from ATP website if no results found so far
+    # First build a set with all ranking numbers from 1 to RankingCut
+    SetTotal = set()
+    for j in range(RankingCut):
+        SetTotal.add(j+1)
+    #Second build a set with all ranking numbers that have player information
+    SetWD = set()
+    for k in range(len(WikidataPlayerInfo)):
+        SetWD.add(int(ListReturn[k][0]))
+    #Get differences from sets which is the ranking numbers of players with no information provided
+    SetTotal.difference_update(SetWD)
+    #Get information on the outstanding players
+    for l in range(len(PositionRank)):
+        if int((str(PositionRank[l].get_text()).strip())) in SetTotal:
+            PlayerRank = str(PositionRank[l].get_text()).strip()
+            PositionCountry = PositionRank[l].findNext('td', {"class": "country-cell"})
+            PositionName1 = PositionCountry.findNext('td', {"class": "player-cell"})
+            PositionName2 = PositionName1.findNext('a')
+            PlayerName = PositionName2.contents[0].strip()
+            PlayerLemma = PlayerName
+            PlayerCountry = GetCountrycode(PositionCountry.findNext('img')['src'])
+            Sitelinks = '-'
+            #Insert information into ListReturn at the ranking position
+            ListReturn.insert(int(PlayerRank) +1, [PlayerRank, PlayerCountry, PlayerName, PlayerLemma, Sitelinks])
     return ListReturn
 
 def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = ''):
