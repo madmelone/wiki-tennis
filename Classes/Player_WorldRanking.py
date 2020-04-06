@@ -18,8 +18,8 @@ from bs4 import BeautifulSoup
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
     ResultList = []
-    if format == 'de' or format == 'ja':
-        #Print ranking number number
+    if format == 'de':
+        #Print ranking number number & player name including link
         ResultList.append('|- \n| ' \
                         + str(RankingInformation[0]) \
                         + '\n| {{' \
@@ -30,34 +30,48 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
                         + '<small>')
-        # Print sitelinks
-        sitelinks = RankingInformation[4]
-        if sitelinks == '-':
-            ResultList.append('-</small>')
-            ResultList.append('')
-        else:
-            for i in range(len(sitelinks)):
-                ResultList.append(
-                    '([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
-            ResultList.append('</small>')
-            ResultList.append('')
-        # Join list
-        OutputList = ('\n'.join(ResultList))
-        return (OutputList)
+    elif format == 'ja':
+        #Print ranking number number & player name including link
+        ResultList.append('|- \n| ' \
+                        + str(RankingInformation[0]) \
+                        + '\n| {{flagicon|' \
+                        + str(RankingInformation[1]) \
+                        + '}} [[' \
+                        + str(RankingInformation[3]) \
+                        + '|' \
+                        + str(RankingInformation[2]) \
+                        + ']]\n|' \
+                        + '<small>')
     else:
         return string
 
-def GetWorldRanking(RankingOrg = 'atp', MatchType = 'singles', RankingCut = '100', RankingDate= ''):
+    # Print sitelinks
+    sitelinks = RankingInformation[4]
+    if sitelinks == '-':
+        ResultList.append('-</small>')
+        ResultList.append('')
+    else:
+        for i in range(len(sitelinks)):
+            ResultList.append(
+                '([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
+        ResultList.append('</small>')
+        ResultList.append('')
+    # Join list
+    OutputList = ('\n'.join(ResultList))
+    return (OutputList)
+
+
+def GetWorldRanking(RankingOrg = 'atp', MatchType = 'singles', RankingCut = '100', language=countryformat, RankingDate= ''):
     if RankingOrg == 'atp':
-        return GetATPWorldRanking(MatchType, RankingCut, RankingDate)
+        return GetATPWorldRanking(MatchType, RankingCut, language, RankingDate)
     elif RankingOrg == 'wta':
-        return GetWTAWorldRanking(MatchType, RankingCut, RankingDate)
+        return GetWTAWorldRanking(MatchType, RankingCut, language, RankingDate)
     elif RankingDate =='itf':
-        return GetITFWorldRanking(MatchType, RankingCut, RankingDate)
+        return GetITFWorldRanking(MatchType, RankingCut, language, RankingDate)
     else:
         exit('Incorrect Ranking Organisation')
 
-def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
+def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, language = countryformat, RankingDate = ''):
 
     #Check input parameters
     #MatchType can only be singles or doubles
@@ -119,7 +133,7 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
     InputIDs = '\"' + '\"\n\"'.join(ListIDs) + '\"'
     try:
         #Derive Player information from Wikidata by ATP-ID
-        WikidataPlayerInfo = WikidataGetPlayerInfo('atp', InputIDs, countryformat)
+        WikidataPlayerInfo = WikidataGetPlayerInfo('atp', InputIDs, language)
 
         for n in range(len(WikidataPlayerInfo)):
             Sitelinks = []
@@ -176,8 +190,8 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, RankingDate = ''):
     ListReturn.sort(key=lambda x: x[0])
     return ListReturn
 
-def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = ''):
-
+def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, language = countryformat, RankingDate = ''):
+    print(language)
     #Check input parameters
     #MatchType can only be singles or doubles
     if MatchType not in ['singles', 'doubles']:
@@ -196,6 +210,7 @@ def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
     #req = requests.get(url)
     #soup = BeautifulSoup(req.text, "html.parser")
 
+    #Set URL just for internal testing purposes to a downloaded html file
     f = open('wtatest.html', 'r')
     s = f.read()
     soup = BeautifulSoup(s, "html.parser")
@@ -217,7 +232,7 @@ def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
 
     try:
         #Derive Player information from Wikidata by ATP-ID
-        WikidataPlayerInfo = WikidataGetPlayerInfo('wta', InputIDs, countryformat)
+        WikidataPlayerInfo = WikidataGetPlayerInfo('wta', InputIDs, language)
 
         for n in range(len(WikidataPlayerInfo)):
             Sitelinks = []

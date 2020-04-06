@@ -4,4 +4,4 @@
 # Date:     20-03-2020
 # Content:  Sets project wide variables
 
-countryformat = 'de'
+countryformat = 'ja'

@@ -1,7 +1,7 @@
 # Name:     ClassWikidata
 # Author:   Michael Frey
 # Version:  0.21
-# Date:     05-04-2020
+# Date:     06-04-2020
 # Content:  Provide functions to interact with Wikidata
 
 # List of imports
@@ -39,7 +39,6 @@ def GetATPID(wd):
 
 
 def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
-    LanguageFormat = "de"
     from SPARQLWrapper import SPARQLWrapper, JSON
     import urllib.parse
     endpoint_url = "https://query.wikidata.org/sparql"
@@ -62,7 +61,7 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
 
   # Find player's label in the language(s)
   OPTIONAL {
-    VALUES ?language_code { "de" }    # Language code for player label
+    VALUES ?language_code { "?language_code" }    # Language code for player label
     ?player rdfs:label ?playerLabel.
     FILTER (LANG(?playerLabel) = ?language_code)
   }
@@ -123,16 +122,16 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
     ?ru_sitelink schema:isPartOf <https://ru.wikipedia.org/>.
   }
   SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "en" .
+    bd:serviceParam wikibase:language "%s", "en" .
   }
 }"""
     # Include variables into query and chose the respective player-id
     if RankingOrg == 'atp':
-        query = q % (PlayerID, LanguageFormat, 'P536')
+        query = q % (PlayerID, LanguageFormat, 'P536', LanguageFormat)
     elif RankingOrg == 'wta':
-        query = q % (PlayerID, LanguageFormat, 'P597')
+        query = q % (PlayerID, LanguageFormat, 'P597', LanguageFormat)
     elif RankingOrg == 'itf':
-        query = q % (PlayerID, LanguageFormat, 'P599')
+        query = q % (PlayerID, LanguageFormat, 'P599', LanguageFormat)
     # Run SPAQRL-query with Agent accorcding to Wikimedia User Agent Policy
     sparql = SPARQLWrapper(endpoint_url,
                            agent='wiki-tennis/0.2 (https://toolsadmin.wikimedia.org/tools/id/wiki-tennis; michael.frey@wikipedia.de)')
