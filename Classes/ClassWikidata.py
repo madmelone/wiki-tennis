@@ -47,7 +47,7 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
     q = """SELECT DISTINCT ?player ?playerLabel ?PlayerID ?playerlink ?country_code
                 ?ar_sitelink ?de_sitelink ?en_sitelink ?es_sitelink ?fa_sitelink ?fr_sitelink ?it_sitelink ?ja_sitelink ?nl_sitelink ?pl_sitelink ?pt_sitelink ?ru_sitelink 
   WHERE {
-  VALUES ?PlayerID { "%s" }
+  VALUES ?PlayerID { %s }
   VALUES ?language_code { "%s" }
 
   # Find the player
@@ -69,8 +69,8 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
 
   # Find the country/ies and country code(s)
   OPTIONAL { ?player wdt:P1532 ?represents. }
-  ?player wdt:P27 ?citizenship.
-  BIND (COALESCE(?represents, ?citizenship) AS ?country)
+  OPTIONAL { ?player wdt:P27 ?citizenship. }
+  BIND (COALESCE(?represents, ?citizenship, "") AS ?country)
   ?country wdt:P298 ?country_code.
 
   # Sitelinks to selected Wikipedias
@@ -192,49 +192,4 @@ def WikidataGetPlayerInfo(RankingOrg, PlayerID, LanguageFormat):
         ReturnList.append(PlayerInfo)
     # Sort Results by World Ranking Position
     ReturnList.sort(key=lambda x: x[2])
-    return ReturnList
-
-
-def WikidataGetPlayerLinks(PlayerID, LanguageFormat=countryformat):
-    from SPARQLWrapper import SPARQLWrapper, JSON
-    import urllib.parse
-    endpoint_url = "https://query.wikidata.org/sparql"
-
-    query = """SELECT DISTINCT ?playerLabel ?Wikipedia_language_code ?sitelink             
-            WHERE {
-              VALUES ?Player_ID { "%s" }
-
-              # Find the player
-              ?player wdt:P536 ?Player_ID.
-
-              # Find the Wikipedia, its language(s), and sitelink for the Wikipedia
-              ?sitelink schema:about ?player.
-              ?sitelink schema:isPartOf ?Wikipedia.
-              ?Wikipedia ^wdt:P856/wdt:P407/wdt:P424 ?Wikipedia_language_code. hint:Prior hint:gearing "forward".
-
-              # Find player's label in the language(s)
-              ?player rdfs:label ?playerLabel.
-              FILTER (LANG(?playerLabel) = ?Wikipedia_language_code)
-              FILTER ( ?Wikipedia_language_code != "%s" ) 
-            }""" % (PlayerID, LanguageFormat)
-
-    sparql = SPARQLWrapper(endpoint_url)
-    sparql.setQuery(query)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-    sitelinks = results['results']['bindings']
-    ReturnList = []
-    for i in range(len(sitelinks)):
-        LinkList = []
-        dic = sitelinks[i]
-        # Get Wikipedia language code
-        WPCode = dic['Wikipedia_language_code']['value']
-        LinkList.append(WPCode)
-        # Get local lemma
-        WPLemma = urllib.parse.unquote(dic['sitelink']['value'].split('wiki/')[1])
-        LinkList.append(WPLemma)
-        # Get Player Label
-        PlayerLabel = dic['playerLabel']['value']
-        LinkList.append(PlayerLabel)
-        ReturnList.append(LinkList)
     return ReturnList
