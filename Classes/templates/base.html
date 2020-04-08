@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>wiki-tennis - supporting WikiProjects:Tennis all over Wikipedia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body>
+    <header>
+        <h1 class="logo">wiki-tennis</h1>
+    </header>
+    <nav>
+          <ul class="nav">
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('about') }}">About</a></li>
+          </ul>
+    </nav>
+    <main>
+      {% block content %}
+      {% endblock %}
+    </main>
+  </body>
+</html>
