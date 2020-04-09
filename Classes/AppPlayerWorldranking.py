@@ -288,7 +288,7 @@ def GetITFWorldRanking(MatchType= 'singles', RankingCut = 100, RankingDate = '')
     print(RankingCut)
     print(RankingDate)
 
-def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
+def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, Language, RankingDate):
     filename = "worldranking.txt"
     FileOutput = open(filename, 'a', encoding='utf-8')
 
@@ -314,9 +314,32 @@ def PrintRanking(RankingList, RankingOrg, Matchtype, RankingCut, RankingDate):
 
     #Write world ranking table contents
     for i in range(len(RankingList)):
-        FileOutput.writelines(LocalRankingFormat(RankingList[i]))
+        FileOutput.writelines(LocalRankingFormat(RankingList[i], Language))
 
     # Write Footer and close file
     FileOutput.write('|}')
     FileOutput.close()
     print("File written")
+
+def RankingOutput(RankingList, RankingOrg, Matchtype, RankingCut, Language, RankingDate):
+    OutputHeader = '=== World Ranking ===\n'
+    OutputMeta = '\n\n{| class=\"wikitable\"\n|+\n!Item\n!Value\n|-\n| RankingOrg\n|' \
+                + RankingOrg \
+                + '\n|-\n| MatchType\n|'\
+                + Matchtype \
+                + '\n|-\n| RankingCut\n|'\
+                + str(RankingCut) \
+                + '\n|-\n| RankingDate\n|'\
+                + RankingDate \
+                + '\n|}'
+    OutputTableHeader = '\n\n\n{| class="wikitable"\n|+\n! style="width: 5em" |#\n! style="width: 30em" | Player\n!Other Languages\n'
+
+    #Write world ranking table contents
+    OutputPlayer = []
+    for i in range(len(RankingList)):
+        OutputPlayer.append(LocalRankingFormat(RankingList[i], Language))
+    OutputList = ('\n'.join(OutputPlayer))
+
+    OutputClose = '|}'
+    Output = OutputHeader + OutputMeta + OutputTableHeader + OutputList + OutputClose
+    return Output.replace("\n", "<br />").replace("<br /><br />", "<br />")

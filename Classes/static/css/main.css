@@ -1,0 +1,199 @@
+.radio-inline {
+	display:inline-block !important;
+}
+textarea, input[type=text], input[type=number], div.input-group-addon {
+	box-shadow:3px 3px 2px #DDD;
+}
+.smaller {
+	font-size:10pt;
+}
+div.ns-block {
+	display:inline-block;
+	padding:1px;
+	margin-bottom:5px;
+	margin-right:5px;
+	white-space: nowrap;
+}
+#main_form textarea {
+	font-size:9pt;
+}
+div.form-group.row > label:first-child {
+	font-weight:bold;
+}
+.num {
+	font-family:courier;
+	text-align:right;
+}
+#autolist_box {
+	float:right;
+	margin-left:5px;
+	margin-bottom:5px;
+	padding:2px;
+	font-size:10pt;
+}
+div.autolist_subbox {
+	display:inline-block;
+	vertical-align:top;
+	margin-left:5px;
+}
+div.tab-pane {
+	margin-top:15px;
+}
+a.redlink {
+	color:red !important;
+}
+a.pagelink:visited {
+	color:#0056ab
+}
+div.fileusage {
+	white-space: nowrap;
+}
+td.link_container {
+	width:100%;
+}
+div.thumbcard {
+	text-align:center;
+	max-height:120px;
+}
+img.thumbcard-img {
+	max-height:120px;
+	border:0px;
+}
+div.example_psid {
+	padding:5px;
+	text-align:right;
+	font-weight:bold;
+	display:table-cell;
+}
+div.example_desc {
+	padding:5px;
+	display:table-cell;
+}
+#example_list {
+	height:500px;
+	overflow:auto;
+}
+
+/*
+Trying to use some colours and fonts from the WikimediaUI Style Guide:
+https://wikimedia.github.io/WikimediaUI-Style-Guide/visual-style_colors.html
+*/
+body {
+	font-family:Lato,Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+	--font-family-sans-serif:Lato,Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+	--font-family-serif:Charter,Verdana,"Times New Roman";
+}
+
+a { color:#36c; }
+a.external { color:#00af89; }
+a.scholia { color:#59955C; }
+a.wikidata { color:#2a4b8d; }
+
+h1,h2,h3,h4,h5,h6,h7,h8,h9 {
+	font-family:Charter,Verdana,Times New Roman;
+}
+
+.btn , .btn-group , nav { font-family:Lato,Arial; }
+.btn-primary { background-color:#36c !important; }
+.btn-success { color:#14866d !important; }
+.btn-danger { color:#b32424 !important; }
+.btn-outline-primary { color:#36c !important; border-color:#36c !important; }
+.btn-outline-success { color:#14866d !important; border-color:#14866d !important; }
+.btn-outline-danger { color:#b32424 !important; border-color:#b32424 !important; }
+.text-success { color:#14866d !important; }
+
+.bg-success { background-color:#00af89 !important; }
+.bg-info { background-color:#36c !important; }
+.bg-warning { background-color:#fc3 !important; }
+.bg-danger { background-color:#d33 !important; }
+
+/*input[type=text],input[type=url],input[type=tel],input[type=number],input[type=color],input[type=email] {*/
+input[type=text] {
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid #c8ccd1;
+	margin-left: 2px;
+	margin-right: 2px;
+	border-radius:0;
+}
+
+input[type=text]:focus {
+	border-bottom-color:#2a4b8d;
+	box-shadow:none;
+}
+.radio-inline {
+	display:inline-block !important;
+}
+textarea, input[type=text], input[type=number], div.input-group-addon {
+	box-shadow:3px 3px 2px #DDD;
+}
+.smaller {
+	font-size:10pt;
+}
+div.ns-block {
+	display:inline-block;
+	padding:1px;
+	margin-bottom:5px;
+	margin-right:5px;
+	white-space: nowrap;
+}
+#main_form textarea {
+	font-size:9pt;
+}
+div.form-group.row > label:first-child {
+	font-weight:bold;
+}
+.num {
+	font-family:courier;
+	text-align:right;
+}
+#autolist_box {
+	float:right;
+	margin-left:5px;
+	margin-bottom:5px;
+	padding:2px;
+	font-size:10pt;
+}
+div.autolist_subbox {
+	display:inline-block;
+	vertical-align:top;
+	margin-left:5px;
+}
+div.tab-pane {
+	margin-top:15px;
+}
+a.redlink {
+	color:red !important;
+}
+a.pagelink:visited {
+	color:#0056ab
+}
+div.fileusage {
+	white-space: nowrap;
+}
+td.link_container {
+	width:100%;
+}
+div.thumbcard {
+	text-align:center;
+	max-height:120px;
+}
+img.thumbcard-img {
+	max-height:120px;
+	border:0px;
+}
+div.example_psid {
+	padding:5px;
+	text-align:right;
+	font-weight:bold;
+	display:table-cell;
+}
+div.example_desc {
+	padding:5px;
+	display:table-cell;
+}
+#example_list {
+	height:500px;
+	overflow:auto;
+}
