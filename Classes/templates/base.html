@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>wiki-tennis - supporting WikiProjects:Tennis all over Wikipedia</title>
+    <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://tools-static.wmflabs.org/magnustools/resources/html/wikimedia.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body>
+    <header>
+        <h1 class="logo">wiki-tennis</h1>
+    </header>
+    <nav>
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('playerworldranking') }}">Player World Ranking</a></li>
+        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('playerwins') }}">Player Tournament Wins</a></li>
+        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('tourneydraw') }}">Tournament Draws</a></li>
+        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('about') }}">About wiki-tennis</a></li>
+      </ul>
+    </nav>
+    <main>
+      {% block content %}
+      {% endblock %}
+    </main>
+  </body>
+</html>
