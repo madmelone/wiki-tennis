@@ -30,30 +30,6 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
                         + '<small>')
-    elif format == 'ja':
-        #Print ranking number number & player name including link
-        ResultList.append('|- \n| ' \
-                        + str(RankingInformation[0]) \
-                        + '\n| {{flagicon|' \
-                        + str(RankingInformation[1]) \
-                        + '}} [[' \
-                        + str(RankingInformation[3]) \
-                        + '|' \
-                        + str(RankingInformation[2]) \
-                        + ']]\n|' \
-                        + '<small>')
-    elif format == 'en':
-        #Print ranking number number & player name including link
-        ResultList.append('|- \n| ' \
-                        + str(RankingInformation[0]) \
-                        + '\n| {{flagicon|' \
-                        + str(RankingInformation[1]) \
-                        + '}} [[' \
-                        + str(RankingInformation[3]) \
-                        + '|' \
-                        + str(RankingInformation[2]) \
-                        + ']]\n|' \
-                        + '<small>')
     elif format == 'fr':
         #Print ranking number number & player name including link
         ResultList.append('|- \n| ' \
@@ -67,7 +43,21 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + ']]\n|' \
                         + '<small>')
     else:
-        return string
+        #This is the standard format used for
+        # cs
+        # en
+        # ja
+        #Print ranking number number & player name including link
+        ResultList.append('|- \n| ' \
+                        + str(RankingInformation[0]) \
+                        + '\n| {{flagicon|' \
+                        + str(RankingInformation[1]) \
+                        + '}} [[' \
+                        + str(RankingInformation[3]) \
+                        + '|' \
+                        + str(RankingInformation[2]) \
+                        + ']]\n|' \
+                        + '<small>')
 
     # Print sitelinks
     sitelinks = RankingInformation[4]
