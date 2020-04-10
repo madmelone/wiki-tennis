@@ -43,15 +43,15 @@ def LocalOutputFormat(TournamentInformation, format=countryformat):
         #Print tournament win number
         ResultList.append('| ' + str(TournamentInformation[0]) + '.')
         #Print tournament date
-        ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10])))
+        ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10], format)))
         #Print tournament location
         ResultList.append('| ' + str(TournamentInformation[5]))
         #Print tournament surface
-        ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12])))
+        ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
         #Print opponent
         ResultList.append('| {{' + str(TournamentInformation[1]) + '|' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + '}}')
         #Print result
-        ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4])))
+        ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
         ResultList.append('')
         #Join list
         OutputList = ('\n'.join(ResultList))
@@ -59,7 +59,7 @@ def LocalOutputFormat(TournamentInformation, format=countryformat):
     else:
         return string
 
-def GetTournamentWins(ATPID, Matchtype="Singles"):
+def GetATPTournamentWins(ATPID, Matchtype):
     # - ATP-ID from Player-Profile, e.g. H355 for Tommy Haas
     # - Matchtype either Singles (standard) or Doubles
     ListReturn = []
@@ -158,6 +158,25 @@ def PrintTournamentWins(ListTournamentWins, Matchtype = "Singles"):
     FileOutput.close()
     #print("File written")
 
+def GetTournamentWins(RankingOrg, PlayerID, Matchtype="Singles"):
+    if RankingOrg == 'atp':
+        return GetATPTournamentWins(PlayerID, Matchtype)
+    #elif RankingOrg == 'wta':
+    #    return GetWTATournamentWins(PlayerID, Matchtype)
+    #elif RankingDate =='itf':
+    #    return GetITFTournamentWins(PlayerID, Matchtype)
+    else:
+        exit('Incorrect Ranking Organisation')
 
-a = 'L018'
-PrintTournamentWins(GetTournamentWins(a))
+def TournamentWinsOutput(ListTournamentWins, language):
+    # Write Header
+    OutputHeader = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Finalgegner\n! Ergebnis\n'
+    # Write tournament wins
+    OutputPlayer = []
+    for i in range(len(ListTournamentWins)):
+        OutputPlayer.append(LocalOutputFormat(ListTournamentWins[i], language))
+    OutputList = ('\n'.join(OutputPlayer))
+
+    OutputClose = '|}'
+    Output = OutputHeader + OutputList + OutputClose
+    return Output.replace("\n", "<br />").replace("<br /><br />", "<br />")

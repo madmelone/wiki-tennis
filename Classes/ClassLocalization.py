@@ -59,7 +59,7 @@ def LocalMatchResultFormat(result, format=countryformat):
             setlist.append(set)
         return (', '.join(setlist))
     else:
-        return string
+        return result
 
 def LocalTourneyColorFormat(TourneyTier):
     TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': 'FFFFCC;'}

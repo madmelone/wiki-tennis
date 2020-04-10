@@ -1,7 +1,29 @@
 {% extends "base.html" %}
+
 {% block content %}
   <div class="home">
     <h2>Player Tournament Wins</h2>
-    <p>Under construction</p>
   </div>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+      <div class="form-group row">
+        <label class="col-sm-2 form-control-label">{{ form.org.label }}</label>
+        <div class="col-sm-4">{{ form.org }}</div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2 form-control-label">{{ form.type.label }}</label>
+        <div class="col-sm-4">{{ form.type }}</div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2 form-control-label">{{ form.player.label }}</label>
+        <div class="col-sm-4">{{ form.player(size=32) }}</div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2 form-control-label">{{ form.language.label }}</label>
+        <div class="col-sm-4">{{ form.language }}</div>
+      </div>
+      <div class="col-sm-2">
+        {{ form.submit() }}
+      </div>
+    </form>
 {% endblock %}

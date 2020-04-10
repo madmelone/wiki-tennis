@@ -211,7 +211,10 @@ def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, language = countr
     #soup = BeautifulSoup(req.text, "html.parser")
 
     #Set URL just for internal testing purposes to a downloaded html file
-    f = open('wtatest.html', 'r')
+    if MatchType == 'singles':
+        f = open('wtatest.html', 'r')
+    elif MatchType == 'doubles':
+        f = open('doubles.html', 'r')
     s = f.read()
     soup = BeautifulSoup(s, "html.parser")
 
