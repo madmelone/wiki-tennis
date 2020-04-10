@@ -8,7 +8,8 @@ class FormPlayerWorldranking(FlaskForm):
     type = SelectField('Match Type', choices=[('singles', 'singles'), ('doubles', 'doubles')])
     language = SelectField('Wikipedia Language', choices=[('en', 'en'), ('de', 'de'), ('cs', 'cs'), ('es', 'es'),
                                                           ('fr', 'fr'), ('it', 'it'), ('ja', 'ja'), ('pl', 'pl'),
-                                                          ('pt', 'pt'), ('ro', 'ro'), ('ru', 'ru'), ('zh', 'zh')])
+                                                          ('pt', 'pt'), ('ro', 'ro'), ('ru', 'ru'), ('sv', 'sv'),
+                                                          ('zh', 'zh')])
     cut = IntegerField('Ranking Cut', validators=[DataRequired()])
     date = StringField('Date', validators=[DataRequired()])
     submit = SubmitField('Request')
