@@ -1,11 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
-from forms import *
-import sys
 from Settings import Config
 
-from Classes.AppPlayerTourneywins import TournamentWinsOutput, GetTournamentWins
-from Classes.AppPlayerWorldranking import GetWorldRanking, RankingOutput
-from Classes.forms import FormPlayerWorldranking, FormPlayerTournamentwins
+from AppPlayerTourneywins import TournamentWinsOutput, GetTournamentWins
+from AppPlayerWorldranking import GetWorldRanking, RankingOutput
+from forms import FormPlayerWorldranking, FormPlayerTournamentwins
 
 #Initiate Flask with config
 app = Flask(__name__)

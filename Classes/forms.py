@@ -1,11 +1,14 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired
+from Settings import Config
 
 class FormPlayerWorldranking(FlaskForm):
     org = SelectField('Ranking Organisation', choices=[('atp', 'ATP'), ('wta', 'WTA')])
     type = SelectField('Match Type', choices=[('singles', 'singles'), ('doubles', 'doubles')])
-    language = SelectField('Wikipedia Language', choices=[('de', 'de'), ('ja', 'ja')])
+    language = SelectField('Wikipedia Language', choices=[('en', 'en'), ('de', 'de'), ('cs', 'cs'), ('es', 'es'),
+                                                          ('fr', 'fr'), ('it', 'it'), ('ja', 'ja'), ('pl', 'pl'),
+                                                          ('pt', 'pt'), ('ro', 'ro'), ('ru', 'ru'), ('zh', 'zh')])
     cut = IntegerField('Ranking Cut', validators=[DataRequired()])
     date = StringField('Date', validators=[DataRequired()])
     submit = SubmitField('Request')

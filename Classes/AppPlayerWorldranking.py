@@ -30,7 +30,35 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + '}}\n|' \
                         + '<small>')
-    elif format == 'ja':
+    elif format == 'fr':
+        #Print ranking number number & player name including link
+        ResultList.append('|- \n| ' \
+                        + str(RankingInformation[0]) \
+                        + '\n| {{' \
+                        + str(RankingInformation[1]) \
+                        + '-d}} [[' \
+                        + str(RankingInformation[3]) \
+                        + '|' \
+                        + str(RankingInformation[2]) \
+                        + ']]\n|' \
+                        + '<small>')
+    elif format == 'pl':
+        #Print ranking number number & player name including link
+        ResultList.append('|- \n| ' \
+                        + str(RankingInformation[0]) \
+                        + '\n| {{Flaga|' \
+                        + str(RankingInformation[1]) \
+                        + '}} [[' \
+                        + str(RankingInformation[3]) \
+                        + '|' \
+                        + str(RankingInformation[2]) \
+                        + ']]\n|' \
+                        + '<small>')
+    else:
+        #This is the standard format used for
+        # cs
+        # en
+        # ja
         #Print ranking number number & player name including link
         ResultList.append('|- \n| ' \
                         + str(RankingInformation[0]) \
@@ -42,8 +70,6 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + ']]\n|' \
                         + '<small>')
-    else:
-        return string
 
     # Print sitelinks
     sitelinks = RankingInformation[4]
