@@ -6,7 +6,7 @@ from Settings import Config
 class FormPlayerWorldranking(FlaskForm):
     org = SelectField('Ranking Organisation', choices=[('atp', 'ATP'), ('wta', 'WTA')])
     type = SelectField('Match Type', choices=[('singles', 'singles'), ('doubles', 'doubles')])
-    language = SelectField('Wikipedia Language', choices=[('en', 'en'), ('de', 'de'), ('cs', 'cs'), ('fr', 'fr'), ('ja', 'ja')])
+    language = SelectField('Wikipedia Language', choices=[('en', 'en'), ('de', 'de'), ('cs', 'cs'), ('fr', 'fr'), ('ja', 'ja'), ('pl', 'pl')])
     cut = IntegerField('Ranking Cut', validators=[DataRequired()])
     date = StringField('Date', validators=[DataRequired()])
     submit = SubmitField('Request')
