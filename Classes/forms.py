@@ -10,3 +10,9 @@ class FormPlayerWorldranking(FlaskForm):
     date = StringField('Date', validators=[DataRequired()])
     submit = SubmitField('Request')
 
+class FormPlayerTournamentwins(FlaskForm):
+    org = SelectField('Ranking Organisation', choices=[('atp', 'ATP')])
+    type = SelectField('Match Type', choices=[('singles', 'singles'), ('doubles', 'doubles')])
+    player = StringField('Player-ID', validators=[DataRequired()])
+    language = SelectField('Wikipedia Language', choices=[('de', 'de')])
+    submit = SubmitField('Request')

@@ -4,7 +4,7 @@
 # Date:     20-03-2020
 # Content:  Sets project wide variables
 
-countryformat = 'ja'
+countryformat = 'de'
 
 #Secret Key for Flask require
 import os
