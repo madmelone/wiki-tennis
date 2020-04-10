@@ -54,6 +54,18 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + ']]\n|' \
                         + '<small>')
+    elif format == 'fr':
+        #Print ranking number number & player name including link
+        ResultList.append('|- \n| ' \
+                        + str(RankingInformation[0]) \
+                        + '\n| {{' \
+                        + str(RankingInformation[1]) \
+                        + '-d}} [[' \
+                        + str(RankingInformation[3]) \
+                        + '|' \
+                        + str(RankingInformation[2]) \
+                        + ']]\n|' \
+                        + '<small>')
     else:
         return string
 
