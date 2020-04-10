@@ -49,13 +49,10 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
     sitelinks = RankingInformation[4]
     if sitelinks == '-':
         ResultList.append('-</small>')
-        ResultList.append('')
     else:
         for i in range(len(sitelinks)):
-            ResultList.append(
-                '([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
+            ResultList.append('([[:' + str(sitelinks[i][0]) + ':' + str(sitelinks[i][1]) + '|' + str(sitelinks[i][0]) + ']]) ')
         ResultList.append('</small>')
-        ResultList.append('')
     # Join list
     OutputList = ('\n'.join(ResultList))
     return (OutputList)
@@ -342,7 +339,6 @@ def RankingOutput(RankingList, RankingOrg, Matchtype, RankingCut, Language, Rank
     for i in range(len(RankingList)):
         OutputPlayer.append(LocalRankingFormat(RankingList[i], Language))
     OutputList = ('\n'.join(OutputPlayer))
-
-    OutputClose = '|}'
+    OutputClose = '\n|}'
     Output = OutputHeader + OutputMeta + OutputTableHeader + OutputList + OutputClose
-    return Output.replace("\n", "<br />").replace("<br /><br />", "<br />")
+    return Output

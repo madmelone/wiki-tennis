@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for
 from forms import *
 import sys
 from Settings import Config
-from AppPlayerWorldranking import *
-from AppPlayerTourneywins import *
+
+from Classes.AppPlayerTourneywins import TournamentWinsOutput, GetTournamentWins
+from Classes.AppPlayerWorldranking import GetWorldRanking, RankingOutput
 from Classes.forms import FormPlayerWorldranking, FormPlayerTournamentwins
 
 #Initiate Flask with config
@@ -73,7 +74,6 @@ def outputplayerwins():
     wins = GetTournamentWins(org, player, type)
     result = TournamentWinsOutput(wins, language)
     return render_template('outputplayerwins.html', result=result)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

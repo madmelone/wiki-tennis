@@ -52,7 +52,6 @@ def LocalOutputFormat(TournamentInformation, format=countryformat):
         ResultList.append('| {{' + str(TournamentInformation[1]) + '|' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + '}}')
         #Print result
         ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
-        ResultList.append('')
         #Join list
         OutputList = ('\n'.join(ResultList))
         return (OutputList)
@@ -177,6 +176,6 @@ def TournamentWinsOutput(ListTournamentWins, language):
         OutputPlayer.append(LocalOutputFormat(ListTournamentWins[i], language))
     OutputList = ('\n'.join(OutputPlayer))
 
-    OutputClose = '|}'
+    OutputClose = '\n|}'
     Output = OutputHeader + OutputList + OutputClose
-    return Output.replace("\n", "<br />").replace("<br /><br />", "<br />")
+    return Output
