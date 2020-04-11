@@ -15,6 +15,7 @@ from ClassWikidata import *
 import requests
 from Settings import countryformat
 from bs4 import BeautifulSoup
+import pycountry
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
     ResultList = []
@@ -54,11 +55,57 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + ']]\n|' \
                         + '<small>')
+    elif format == 'nl':
+        print(str(RankingInformation[0]) + ' - ' + str(RankingInformation[1]))
+
+        # Print ranking number number & player name including link
+        # Catch exception for TPE/TWN
+        if RankingInformation[1] == 'TPE':
+            cc2 = 'XT'
+        # Catch exception for POR/PRT
+        elif RankingInformation[1] == 'POR':
+            cc2 = 'PT'
+        # Catch exception for CRO/HRV
+        elif RankingInformation[1] == 'CRO':
+            cc2 = 'HR'
+        # Catch exception for NED/NLD and for historic ANT
+        elif RankingInformation[1] == 'NED' or RankingInformation[1] == 'ANT':
+            cc2 = 'NL'
+        # Catch exception for GER/DEU
+        elif RankingInformation[1] == 'GER':
+            cc2 = 'DE'
+        # Catch exception for MON/MCO
+        elif RankingInformation[1] == 'MON':
+            cc2 = 'MC'
+        # Catch exception for SUI/CHE
+        elif RankingInformation[1] == 'SUI':
+            cc2 = 'CH'
+        # Catch exception for historic SCG/SRB
+        elif RankingInformation[1] == 'SCG':
+            cc2 = 'RS'
+        # Catch exception for BUL/BGR
+        elif RankingInformation[1] == 'BUL':
+            cc2 = 'BG'
+        # Catch exception for SLO/SVN
+        elif RankingInformation[1] == 'SLO':
+            cc2 = 'SI'
+        else:
+            cc2 = str(pycountry.countries.get(alpha_3=RankingInformation[1]).alpha_2)
+        #print(str(RankingInformation[0]) + ' - ' + str(RankingInformation[1] + ' - ' + cc2))
+
+        ResultList.append('|- \n| ' \
+                      + str(RankingInformation[0]) \
+                      + '\n| {{' \
+                      #Convert three character country code to two character country code
+                      + str(cc2) \
+                      + '-VLAG}} [[' \
+                      + str(RankingInformation[3]) \
+                      + '|' \
+                      + str(RankingInformation[2]) \
+                      + ']]\n|' \
+                      + '<small>')
     else:
-        #This is the standard format used for
-        # cs
-        # en
-        # ja
+        #This is the standard format used
         #Print ranking number number & player name including link
         ResultList.append('|- \n| ' \
                         + str(RankingInformation[0]) \
