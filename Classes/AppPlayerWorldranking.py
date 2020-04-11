@@ -15,6 +15,7 @@ from ClassWikidata import *
 import requests
 from Settings import countryformat
 from bs4 import BeautifulSoup
+import pycountry
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
     ResultList = []
@@ -54,11 +55,30 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + str(RankingInformation[2]) \
                         + ']]\n|' \
                         + '<small>')
+    elif format == 'nl':
+        # Print ranking number number & player name including link
+        # Catch exceptions which are not covered by pycountries
+        exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT', 'SCG': 'RS',
+                      'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
+        if RankingInformation[1] in exceptions:
+            cc2 = str(exceptions[RankingInformation[1]])
+        else:
+            cc2 = str(pycountry.countries.get(alpha_3=RankingInformation[1]).alpha_2)
+        #print(str(RankingInformation[0]) + ' - ' + str(RankingInformation[1] + ' - ' + cc2))
+
+        ResultList.append('|- \n| ' \
+                      + str(RankingInformation[0]) \
+                      + '\n| {{' \
+                      #Convert three character country code to two character country code
+                      + str(cc2) \
+                      + '-VLAG}} [[' \
+                      + str(RankingInformation[3]) \
+                      + '|' \
+                      + str(RankingInformation[2]) \
+                      + ']]\n|' \
+                      + '<small>')
     else:
-        #This is the standard format used for
-        # cs
-        # en
-        # ja
+        #This is the standard format used
         #Print ranking number number & player name including link
         ResultList.append('|- \n| ' \
                         + str(RankingInformation[0]) \
