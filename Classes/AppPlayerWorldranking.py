@@ -56,39 +56,12 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
                         + ']]\n|' \
                         + '<small>')
     elif format == 'nl':
-        print(str(RankingInformation[0]) + ' - ' + str(RankingInformation[1]))
-
         # Print ranking number number & player name including link
-        # Catch exception for TPE/TWN
-        if RankingInformation[1] == 'TPE':
-            cc2 = 'XT'
-        # Catch exception for POR/PRT
-        elif RankingInformation[1] == 'POR':
-            cc2 = 'PT'
-        # Catch exception for CRO/HRV
-        elif RankingInformation[1] == 'CRO':
-            cc2 = 'HR'
-        # Catch exception for NED/NLD and for historic ANT
-        elif RankingInformation[1] == 'NED' or RankingInformation[1] == 'ANT':
-            cc2 = 'NL'
-        # Catch exception for GER/DEU
-        elif RankingInformation[1] == 'GER':
-            cc2 = 'DE'
-        # Catch exception for MON/MCO
-        elif RankingInformation[1] == 'MON':
-            cc2 = 'MC'
-        # Catch exception for SUI/CHE
-        elif RankingInformation[1] == 'SUI':
-            cc2 = 'CH'
-        # Catch exception for historic SCG/SRB
-        elif RankingInformation[1] == 'SCG':
-            cc2 = 'RS'
-        # Catch exception for BUL/BGR
-        elif RankingInformation[1] == 'BUL':
-            cc2 = 'BG'
-        # Catch exception for SLO/SVN
-        elif RankingInformation[1] == 'SLO':
-            cc2 = 'SI'
+        # Catch exceptions which are not covered by pycountries
+        exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT', 'SCG': 'RS',
+                      'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
+        if RankingInformation[1] in exceptions:
+            cc2 = str(exceptions[RankingInformation[1]])
         else:
             cc2 = str(pycountry.countries.get(alpha_3=RankingInformation[1]).alpha_2)
         #print(str(RankingInformation[0]) + ' - ' + str(RankingInformation[1] + ' - ' + cc2))
