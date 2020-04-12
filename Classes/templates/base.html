@@ -20,10 +20,21 @@
     </header>
     <nav>
       <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('playerworldranking') }}">Player World Ranking</a></li>
-        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('playerwins') }}">Player Tournament Wins</a></li>
-        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('tourneydraw') }}">Tournament Draws</a></li>
-        <li class="nav-item"><a class="nav-link inactive" data-toggle="tab" role="tab" href="{{ url_for('about') }}">About wiki-tennis</a></li>
+        <!--Define naviagtion bar -->
+        {% set navigation_bar = [
+          ('playerworldranking', 'Player World Ranking'),
+          ('playerwins', 'Player Tournament Wins'),
+          ('tourneydraw',  'Tournament Draws'),
+          ('about', 'About wiki-tennis')
+          ]
+        -%}
+        {% set active_page = active_page|default('about') -%}
+        <!--Build navigation and consider active or inactive class for the link -->
+        {% for id, caption in navigation_bar %}
+          <li class="nav-item">
+            <a class="{{ 'nav-link active' if id == active_page else 'nav-link inactive' }}" data-toggle="tab" role="tab" href="{{ url_for(id) }}">{{ caption }}</a></li>
+          </li>
+        {% endfor %}
       </ul>
     </nav>
     <main>
