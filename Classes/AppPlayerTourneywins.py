@@ -35,30 +35,75 @@ def GetTourneyTier(tourneylevel):
     TourneyTier = {'itf':1, 'challenger':2, '250':3, '500':3, 'atp':3, 'atpwt':3, '1000s':4, 'grandslam':5, 'olmypics':5, 'tourfinals':5}
     return TourneyTier[tourneylevel]
 
-def LocalOutputFormat(TournamentInformation, format=countryformat):
+def LocalTableFormat(format, type):
+    if format == 'de':
+        if type == 'singles':
+            Output = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Finalgegner\n! Ergebnis\n'
+        elif type == 'doubles':
+            Output = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Partner\n! Finalgegner\n! Ergebnis\n'
+    else:
+        Output = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Finalgegner\n! Ergebnis\n'
+    return Output
+
+def LocalTourneyFormat(TournamentInformation, format, type):
     ResultList = []
     if format == 'de':
-        #Print start of row and apply potential color coding
-        ResultList.append(LocalTourneyColorFormat(TournamentInformation[7]))
-        #Print tournament win number
-        ResultList.append('| ' + str(TournamentInformation[0]) + '.')
-        #Print tournament date
-        ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10], format)))
-        #Print tournament location
-        ResultList.append('| ' + str(TournamentInformation[5]))
-        #Print tournament surface
-        ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
-        #Print opponent
-        ResultList.append('| {{' + str(TournamentInformation[1]) + '|' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + '}}')
-        #Print result
-        ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
-        #Join list
-        OutputList = ('\n'.join(ResultList))
+
+        #ListReturn.append(
+        #    [0#,1Opponent1Countrycode, 2Opponent1Name, 3Opponent1ID, 4MatchResult, 5TourneyName, 6TourneyID, 7TourneyLevel,
+        #     8TourneyTier, 9TourneyLocation, 10TourneyDate, 11TourneySurface, 12TourneySurfaceInOut, 13Opponent2Countrycode,
+        #     14Opponent2Name, O15pponent2ID, 16PartnerCountrycode, 17PartnerName, 18PartnerID])
+        if type == 'singles':
+            #Print start of row and apply potential color coding
+            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7]))
+            #Print tournament win number
+            ResultList.append('| ' + str(TournamentInformation[0]) + '.')
+            #Print tournament date
+            ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10], format)))
+            #Print tournament location
+            ResultList.append('| ' + str(TournamentInformation[5]))
+            #Print tournament surface
+            ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
+            #Print opponent
+            ResultList.append('| {{' + str(TournamentInformation[1]) + '|' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + '}}')
+            #Print result
+            ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
+            #Join list
+            OutputList = ('\n'.join(ResultList))
+        elif type == 'doubles':
+            #Print start of row and apply potential color coding
+            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7]))
+            #Print tournament win number
+            ResultList.append('| ' + str(TournamentInformation[0]) + '.')
+            #Print tournament date
+            ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10], format)))
+            #Print tournament location
+            ResultList.append('| ' + str(TournamentInformation[5]))
+            #Print tournament surface
+            ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
+            # Print partner
+            ResultList.append('| {{' + str(TournamentInformation[16]) + '|' + str(TournamentInformation[17]) + '|' + str(TournamentInformation[17]) + '}}')
+            #Print opponents
+            ResultList.append('| {{' + str(TournamentInformation[1]) + '|' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + '}} <br /> {{' + str(TournamentInformation[13]) + '|' + str(TournamentInformation[14]) + '|' + str(TournamentInformation[14]) + '}}')
+            #Print result
+            ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
+            #Join list
+            OutputList = ('\n'.join(ResultList))
         return (OutputList)
     else:
-        return string
+        return TournamentInformation
 
-def GetATPTournamentWins(ATPID, Matchtype):
+def GetTournamentWins(RankingOrg, PlayerID, MatchType, MinimumTier = mintourneytier):
+    if RankingOrg == 'atp':
+        return GetATPTournamentWins(PlayerID, MatchType, MinimumTier)
+    elif RankingOrg == 'wta':
+        return GetWTATournamentWins(PlayerID, MatchType, MinimumTier)
+    elif RankingOrg =='itf':
+        return GetITFTournamentWins(PlayerID, MatchType, MinimumTier)
+    else:
+        exit('Incorrect Ranking Organisation')
+
+def GetATPTournamentWins(ATPID, Matchtype, MinimumTier = mintourneytier):
     # - ATP-ID from Player-Profile, e.g. H355 for Tommy Haas
     # - Matchtype either Singles (standard) or Doubles
     ListReturn = []
@@ -74,26 +119,33 @@ def GetATPTournamentWins(ATPID, Matchtype):
 
     #Find all tournament finals
     finals = soup.find_all("td", string="Finals")
-
     #Read finals match information
     for i in range(len(finals)):
-        PositionOpponentrank = finals[i].findNext('td')
-        PositionOpponentcountry = PositionOpponentrank.findNext('a', { "class" : "mega-player-flag"})
-        PositionOpponent1 = PositionOpponentrank.findNext('td').contents[0]
-        PositionOpponent2 = PositionOpponent1.findNext('a', { "class" : "mega-player-name"})
-        Winloss = str(PositionOpponent2.findNext('td').contents[0]).strip()
+        PositionOpponents = finals[i].findNext('td')
+        PositionOpponent1Country = PositionOpponents.findNext('a', {"class" : "mega-player-flag"})
+        PositionOpponent1Name = PositionOpponents.findNext('td').contents[0].findNext('a', { "class" : "mega-player-name"})
+        Winloss = str(PositionOpponent1Name.findNext('td').contents[0]).strip()
 
         #Get details in case tournament was won
         if Winloss == "W":
+            #Get details for opponent 1 (in singles and doubles)
+            Opponent1Countrycode = GetCountrycode(PositionOpponent1Country.findNext('img')['src'])
+            Opponent1Name = PositionOpponent1Name.contents[0].strip()
+            Opponent1ID = PositionOpponent1Name['href'].split('/')[4].strip()
 
-            #Get opponent details
-            OpponentCountrycode = GetCountrycode(PositionOpponentcountry.findNext('img')['src'])
-            OpponentName = PositionOpponent2.contents[0].strip()
-            OpponentID = PositionOpponent2['href'].split('/')[4].strip()
+            #Get details for opponent 2 (in doubles)
+            Opponent2Countrycode = ''
+            Opponent2Name = ''
+            Opponent2ID = ''
+            if Matchtype == 'doubles':
+                PositionOpponent2Country = PositionOpponent1Country.findNext('a', {"class": "mega-player-flag"})
+                PositionOpponent2Name = PositionOpponent1Name.findNext('a', { "class": "mega-player-name"})
+                Opponent2Countrycode = GetCountrycode(PositionOpponents.findNext('img').findNext('img')['src'])
+                Opponent2Name = PositionOpponent2Name.contents[0].strip()
+                Opponent2ID = PositionOpponent2Name['href'].split('/')[4].strip()
 
             #Get match result
-            PositionMatchResult = PositionOpponent2.findNext('a')
-
+            PositionMatchResult = PositionOpponent2Name.findNext('a')
             # Clean MatchResult and tie-break results
             if len(PositionMatchResult.contents) > 1:
                 templist = []
@@ -102,15 +154,18 @@ def GetATPTournamentWins(ATPID, Matchtype):
                 MatchResult = (''.join(templist))
             else:
                 MatchResult = str(PositionMatchResult.contents).strip(',[]\',').rstrip()
-
             #Get tournament level (part 1, continues after tournament name)
-            PositionTourneyLevel1 = PositionOpponentrank.findPrevious('td', { "class" : "tourney-badge-wrapper"})
+            PositionTourneyLevel1 = PositionOpponents.findPrevious('td', {"class" : "tourney-badge-wrapper"})
             PositionTourneyLevel2 = PositionTourneyLevel1.findNext('img')['src']
-
             #Get tournament name and location
             PositionTourneyName = PositionTourneyLevel1.findNext('a', { "class" : "tourney-title"})
-            TourneyName = PositionTourneyName.contents[0].strip()
-            TourneyID = PositionTourneyName['href'].split('/')[4].strip()
+            PositionTourneyNameFallback = PositionTourneyLevel1.findNext('span', {"class": "tourney-title"})
+            try:
+                TourneyName = PositionTourneyName.contents[0].strip()
+                TourneyID = PositionTourneyName['href'].split('/')[4].strip()
+            except AttributeError:
+                TourneyName = PositionTourneyNameFallback.contents[0].strip()
+                TourneyID = ''
             TourneyLocation = PositionTourneyLevel1.findNext('span', { "class" : "tourney-location"}).contents[0].strip()
 
             #Get tournament level (part 2, continued from before tournament name
@@ -122,16 +177,27 @@ def GetATPTournamentWins(ATPID, Matchtype):
             TourneyWeek = PositionTourneyweek.contents[0].strip()
             TourneyWeek2 = TourneyWeek.replace('.','-')
             TourneyDate = TourneyWeek2[-10:]
-
             #Get tournament surface
             PositionTourneySurface1 = PositionTourneyweek.findNext('div', {"class": "icon-court image-icon"})
             PositionTourneySurface2 = PositionTourneySurface1.findNext('div', {"class": "info-area"})
             TourneySurface = PositionTourneySurface2.findNext('span', {"class": "item-value"}).contents[0].strip()
             TourneySurfaceInOut = PositionTourneySurface2.findNext('div', {"class": "item-details"}).contents[0].strip()
 
+            #Get details for doubles partner
+            PartnerCountrycode = ''
+            PartnerName = ''
+            PartnerID = ''
+            if Matchtype == 'doubles':
+                PositionPartner1 = PositionTourneySurface2.findNext('div', {"class": "activity-tournament-caption"})
+                PositionPartner2 = PositionPartner1.findNext('a')
+                #Only temporary fix until Wikidata implementation ready
+                PartnerCountrycode = 'WELT'
+                PartnerName = PositionPartner2.contents[0].strip()
+                PartnerID = PositionPartner2['href'].split('/')[4].strip()
+
             #Return values if tournament minimum level is reached AND is not tournament is not World Team Cup
-            if int(TourneyTier) >= mintourneytier and TourneyName not in excludedtourney:
-                ListReturn.append([OpponentCountrycode, OpponentName, OpponentID, MatchResult, TourneyName, TourneyID, TourneyLevel, TourneyTier, TourneyLocation, TourneyDate, TourneySurface, TourneySurfaceInOut])
+            if int(TourneyTier) >= MinimumTier and TourneyName not in excludedtourney:
+                ListReturn.append([Opponent1Countrycode, Opponent1Name, Opponent1ID, MatchResult, TourneyName, TourneyID, TourneyLevel, TourneyTier, TourneyLocation, TourneyDate, TourneySurface, TourneySurfaceInOut, Opponent2Countrycode, Opponent2Name, Opponent2ID, PartnerCountrycode, PartnerName, PartnerID])
 
     #Order tournaments in reverse to oldest to newest
     ListReturn.reverse()
@@ -144,6 +210,18 @@ def GetATPTournamentWins(ATPID, Matchtype):
     #Return list of tournament wins
     return ListReturn
 
+def GetWTATournamentWins(PlayerID, MatchType, MinimumTier):
+    print('WTA')
+    print(PlayerID)
+    print(MatchType)
+    print(MinimumTier)
+
+def GetITFTournamentWins(PlayerID, MatchType, MinimumTier):
+    print('ITF')
+    print(PlayerID)
+    print(MatchType)
+    print(MinimumTier)
+
 def PrintTournamentWins(ListTournamentWins, Matchtype = "Singles"):
     FileOutput = open(filename, "a")
     #Write Header
@@ -151,29 +229,19 @@ def PrintTournamentWins(ListTournamentWins, Matchtype = "Singles"):
     FileOutput.write(OutputHeader)
     #Write tournament wins
     for i in range(len(ListTournamentWins)):
-        FileOutput.writelines(LocalOutputFormat(ListTournamentWins[i]))
+        FileOutput.writelines(LocalTourneyFormat(ListTournamentWins[i]))
     #Write Footer and close file
     FileOutput.write('|}')
     FileOutput.close()
     #print("File written")
 
-def GetTournamentWins(RankingOrg, PlayerID, Matchtype="Singles"):
-    if RankingOrg == 'atp':
-        return GetATPTournamentWins(PlayerID, Matchtype)
-    #elif RankingOrg == 'wta':
-    #    return GetWTATournamentWins(PlayerID, Matchtype)
-    #elif RankingDate =='itf':
-    #    return GetITFTournamentWins(PlayerID, Matchtype)
-    else:
-        exit('Incorrect Ranking Organisation')
-
-def TournamentWinsOutput(ListTournamentWins, language):
+def TournamentWinsOutput(ListTournamentWins, Language, MatchType):
     # Write Header
-    OutputHeader = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Finalgegner\n! Ergebnis\n'
+    OutputHeader = LocalTableFormat(Language, MatchType)
     # Write tournament wins
     OutputPlayer = []
     for i in range(len(ListTournamentWins)):
-        OutputPlayer.append(LocalOutputFormat(ListTournamentWins[i], language))
+        OutputPlayer.append(LocalTourneyFormat(ListTournamentWins[i], Language, MatchType))
     OutputList = ('\n'.join(OutputPlayer))
 
     OutputClose = '\n|}'

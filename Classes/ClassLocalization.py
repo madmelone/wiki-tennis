@@ -62,7 +62,7 @@ def LocalMatchResultFormat(result, format=countryformat):
         return result
 
 def LocalTourneyColorFormat(TourneyTier):
-    TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': 'FFFFCC;'}
+    TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', '500':'#D1EEEE', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': 'FFFFCC;'}
     if TourneyTier not in TourneyColor:
         return '|-'
     else:
