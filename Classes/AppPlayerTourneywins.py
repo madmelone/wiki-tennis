@@ -108,7 +108,6 @@ def GetATPTournamentWins(ATPID, Matchtype, MinimumTier = mintourneytier):
     # - Matchtype either Singles (standard) or Doubles
     ListReturn = []
     n = 0
-
     #Open ATP activity website
     url = 'https://www.atptour.com/en/players/-/' + ATPID + '/player-activity?year=all&matchType=' + Matchtype
     req = requests.get(url)

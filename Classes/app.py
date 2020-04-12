@@ -37,7 +37,8 @@ def playerwins():
         type = request.form.get('type')
         player = request.form.get('player')
         language = request.form.get('language')
-        return redirect(url_for('outputplayerwins', org=org, type=type, player=player, language=language))
+        level = request.form.get('level')
+        return redirect(url_for('outputplayerwins', org=org, type=type, player=player, language=language, level=level))
     return render_template('playerwins.html', form=form)
 
 @app.route('/tourneydraw/')
@@ -68,9 +69,10 @@ def outputplayerwins():
     type = request.args.get('type', type = str)
     player = request.args.get('player', type = str)
     language = request.args.get('language', type = str)
+    level = request.args.get('level', type = int)
     #Run GetTournamentWins()
-    wins = GetTournamentWins(org, player, type)
-    result = TournamentWinsOutput(wins, language)
+    wins = GetTournamentWins(org, player, type, level)
+    result = TournamentWinsOutput(wins, language, type)
     return render_template('outputplayerwins.html', result=result)
 
 if __name__ == '__main__':
