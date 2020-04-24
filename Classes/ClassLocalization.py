@@ -34,6 +34,15 @@ def LocalSurfaceFormat(Surface, InOut='O', format=countryformat):
             return SurfaceTranslation[Surface] + ' (' + InOutTranslation[InOut] + ')'
         else:
             return SurfaceTranslation[Surface]
+    elif format == 'nl':
+        #Translate to local values
+        SurfaceTranslation = {'Hard':'Hardcourt', 'Clay':'Gravel', 'Grass':'Gras', 'Carpet':'Tapijt'}
+        InOutTranslation = {'I':'i', 'O':''}
+        #Apply local format
+        if InOut == 'I':
+            return SurfaceTranslation[Surface] + ' (' + InOutTranslation[InOut] + ')'
+        else:
+            return SurfaceTranslation[Surface]
     else:
         return Surface
 
@@ -44,7 +53,13 @@ def LocalMatchResultFormat(result, format=countryformat):
         templist = []
         for i in range(len(result)):
             templist.append(str(result[i]))
-        result = (''.join(templist))
+        # Apply local tiebreak format
+        if format == 'nl':
+            temp = (''.join(templist))
+            result = temp.replace('<sup>', '(').replace('</sup>', ')')
+        #Keep standard format of <sup> </sup>
+        else:
+            result = (''.join(templist))
 
     setlist = []
     #Split the individual sets from the result input
@@ -58,11 +73,25 @@ def LocalMatchResultFormat(result, format=countryformat):
                 set = str(sets[i][0]) + ':' + str(sets[i][1:])
             setlist.append(set)
         return (', '.join(setlist))
+    elif format == 'nl':
+        for i in range(len(sets)):
+            if sets[i] == '(RET)':
+                set = 'opg.'
+            else:
+                set = str(sets[i][0]) + '-' + str(sets[i][1:])
+            setlist.append(set)
+        return (', '.join(setlist))
     else:
         return result
 
-def LocalTourneyColorFormat(TourneyTier):
-    TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', '500':'#D1EEEE', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': 'FFFFCC;'}
+def LocalTourneyColorFormat(TourneyTier, language):
+    if language == 'de':
+        TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', '500':'#D1EEEE', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': '#FFFFCC;'}
+    elif language == 'nl':
+        TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', '500':'#=d4f1c5', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': '#FFFFCC;'}
+    else:
+        TourneyColor = {'challenger': '#EEEEEE;', '1000s': '#DFE2E9;', '500':'#D1EEEE', 'grandslam': '#E5D1CB;', 'olmypics': '#FFD700;', 'tourfinals': '#FFFFCC;'}
+
     if TourneyTier not in TourneyColor:
         return '|-'
     else:
