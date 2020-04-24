@@ -9,11 +9,14 @@ from ClassSupportFunctions import *
 import requests
 from bs4 import BeautifulSoup
 import os
+import pycountry
 
 
 def GetTourneylevel(filepath, TourneyName):
     if 'Olympics' in str(TourneyName):
         return 'olmypics'
+    elif 'Grand Slam Cup' in str(TourneyName):
+        return 'tourfinals'
     else:
         filename = os.path.basename(filepath)
         level = filename.split('_',2)
@@ -32,6 +35,11 @@ def LocalTableFormat(format, type):
             Output = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Finalgegner\n! Ergebnis\n'
         elif type == 'doubles':
             Output = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Partner\n! Finalgegner\n! Ergebnis\n'
+    elif format == 'nl':
+        if type == 'singles':
+            Output = '=== Enkelspel === \n{| class=\"wikitable\" style=\"line-height: 1.0\"\n|- bgcolor=\"#efefef\"\n!Nr. !! Datum !! Toernooi !! Ondergrond !! Tegenstander in finale !! Score !! Details\n|- bgcolor=\"#efefef\" align=\"center\"\n|colspan=\"7\"| \'\'\'Gewonnen finales\'\'\'\n'
+        elif type == 'doubles':
+            Output = '=== Dubbelspel  === \n{| class=\"wikitable\" style=\"line-height: 1.0\"\n|-\n! Nr. !! Datum !! Toernooi !! Ondergrond !! Partner !! Tegenstanders in finale !! Score !! Details\n|- bgcolor=\"#efefef\" align=\"center\"\n|colspan=\"8\"| \'\'\'Gewonnen finales herendubbel\'\'\'\n'
     else:
         Output = '==== Turniersiege ==== \n{| class=\"wikitable\"\n|- style=\"background:#EEEEEE;\"\n! Nr.\n! Datum\n! Turnier\n! Belag\n! Finalgegner\n! Ergebnis\n'
     return Output
@@ -44,10 +52,10 @@ def LocalTourneyFormat(TournamentInformation, format, type, result):
         #    [0#,1Opponent1Countrycode, 2Opponent1Name, 3Opponent1ID, 4MatchResult, 5TourneyName, 6TourneyID, 7TourneyLevel,
         #     8TourneyTier, 9TourneyLocation, 10TourneyDate, 11TourneySurface, 12TourneySurfaceInOut, 13Opponent2Countrycode,
         #     14Opponent2Name, O15pponent2ID, 16PartnerCountrycode, 17PartnerName, 18PartnerID], 19WinLoss)
-        #German Format only prints wins
+        # German Format only prints wins
         if type == 'singles' and TournamentInformation[19] == result:
             #Print start of row and apply potential color coding
-            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7]))
+            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7], format))
             #Print tournament win number
             ResultList.append('| ' + str(TournamentInformation[0]) + '.')
             #Print tournament date
@@ -64,7 +72,7 @@ def LocalTourneyFormat(TournamentInformation, format, type, result):
             OutputList = ('\n'.join(ResultList))
         elif type == 'doubles' and TournamentInformation[19] == result:
             #Print start of row and apply potential color coding
-            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7]))
+            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7], format))
             #Print tournament win number
             ResultList.append('| ' + str(TournamentInformation[0]) + '.')
             #Print tournament date
@@ -82,6 +90,74 @@ def LocalTourneyFormat(TournamentInformation, format, type, result):
             #Join list
             OutputList = ('\n'.join(ResultList))
         return (OutputList)
+    # Dutch Format prints wins and finals losses
+    if format == 'nl':
+
+        #    [0#,1Opponent1Countrycode, 2Opponent1Name, 3Opponent1ID, 4MatchResult, 5TourneyName, 6TourneyID, 7TourneyLevel,
+        #     8TourneyTier, 9TourneyLocation, 10TourneyDate, 11TourneySurface, 12TourneySurfaceInOut, 13Opponent2Countrycode,
+        #     14Opponent2Name, O15pponent2ID, 16PartnerCountrycode, 17PartnerName, 18PartnerID], 19WinLoss)
+        #Dutch Format  prints wins and finals losses
+        if type == 'singles' and TournamentInformation[19] == result:
+            #Print start of row and apply potential color coding
+            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7], format))
+            #Print tournament win number
+            ResultList.append('| ' + str(TournamentInformation[0]) + '.')
+            #Print tournament date
+            ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10], format)))
+            #Print tournament location
+            ResultList.append('| ' + str(TournamentInformation[5]))
+            #Print tournament surface
+            ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
+            #Print opponent
+            #Catch exceptions which are not covered by pycountries
+            exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT',
+                          'RSA': 'ZA', 'SCG': 'RS', 'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
+            if TournamentInformation[1] in exceptions:
+                cc = str(exceptions[TournamentInformation[1]])
+            else:
+                cc = str(pycountry.countries.get(alpha_3=TournamentInformation[1]).alpha_2)
+
+            ResultList.append('| {{' + cc + '-VLAG}} [[' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + ']]')
+            #Print result
+            ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
+            ResultList.append('| ')
+            #Join list
+            OutputList = ('\n'.join(ResultList))
+        elif type == 'doubles' and TournamentInformation[19] == result:
+            #Print start of row and apply potential color coding
+            ResultList.append(LocalTourneyColorFormat(TournamentInformation[7], format))
+            #Print tournament win number
+            ResultList.append('| ' + str(TournamentInformation[0]) + '.')
+            #Print tournament date
+            ResultList.append('| ' + str(LocalDateFormat(TournamentInformation[10], format)))
+            #Print tournament location
+            ResultList.append('| ' + str(TournamentInformation[5]))
+            #Print tournament surface
+            ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
+            # Print partner
+            ResultList.append('| [[' + str(TournamentInformation[17]) + '|' + str(TournamentInformation[17]) + ']]')
+            #Print opponents
+            #Catch exceptions which are not covered by pycountries
+            exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT',
+                          'RSA': 'ZA', 'SCG': 'RS', 'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
+            if TournamentInformation[1] in exceptions:
+                cc1 = str(exceptions[TournamentInformation[1]])
+            else:
+                cc1 = str(pycountry.countries.get(alpha_3=TournamentInformation[1]).alpha_2)
+            if TournamentInformation[13] in exceptions:
+                cc2 = str(exceptions[TournamentInformation[13]])
+            else:
+                cc2 = str(pycountry.countries.get(alpha_3=TournamentInformation[13]).alpha_2)
+
+            ResultList.append('| {{' + cc1 + '-VLAG}} [[' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + ']] <br /> {{' + cc2 + '-VLAG}} [[' + str(TournamentInformation[14]) + '|' + str(TournamentInformation[14]) + ']]')
+            #Print result
+            ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
+            ResultList.append('| ')
+            #Join list
+            OutputList = ('\n'.join(ResultList))
+        return (OutputList)
+
+
     #else:
     #    return TournamentInformation
 
@@ -230,8 +306,35 @@ def TournamentWinsOutput(ListTournamentWins, Language, MatchType):
         for i in range(len(ListTournamentWins)):
             #only add lines if they contain tournament results, i.e. avoid empty results which get appended by a newline
             if LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'W') != '':
-                    OutputPlayer.append(LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'W'))
+                OutputPlayer.append(LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'W'))
         OutputList = ('\n'.join(OutputPlayer))
         OutputClose = '\n|}'
         Output = OutputHeader + OutputList + OutputClose
+    if Language == 'nl':
+        # Write Header for tournament wins
+        OutputHeader1 = LocalTableFormat(Language, MatchType)
+        # Write tournament wins
+        OutputPlayer = []
+        for i in range(len(ListTournamentWins)):
+            #only add lines if they contain tournament results, i.e. avoid empty results which get appended by a newline
+            if LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'W') != '':
+                OutputPlayer.append(LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'W'))
+        OutputList1 = ('\n'.join(OutputPlayer))
+        # Write final losses
+        if MatchType == 'singles':
+            OutputHeader2 = '\n|- bgcolor=\"#efefef\" align=\"center\"\n|colspan=\"8\"| \'\'\'Verloren finales \'\'\'\n'
+        elif MatchType == 'doubles':
+            OutputHeader2 = '\n|- bgcolor=\"#efefef\" align=\"center\"\n|colspan=\"8\"| \'\'\'Verloren finales herendubbel\'\'\'\n'
+        OutputPlayer2 = []
+        for i in range(len(ListTournamentWins)):
+            #only add lines if they contain tournament results, i.e. avoid empty results which get appended by a newline
+            if LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'L') != '':
+                    OutputPlayer2.append(LocalTourneyFormat(ListTournamentWins[i], Language, MatchType, 'L'))
+        OutputList2 = ('\n'.join(OutputPlayer2))
+        #Close table and consolidate complete output
+        OutputClose = '\n|}'
+        Output = OutputHeader1 + OutputList1 + OutputHeader2 + OutputList2 + OutputClose
+
     return Output
+
+
