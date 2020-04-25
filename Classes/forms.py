@@ -18,7 +18,7 @@ class FormPlayerTournamentwins(FlaskForm):
     org = SelectField('Ranking Organisation', choices=[('atp', 'ATP')])
     type = SelectField('Match Type', choices=[('singles', 'singles'), ('doubles', 'doubles')])
     player = StringField('Player-ID', validators=[DataRequired()])
-    language = SelectField('Wikipedia Language', choices=[('de', 'de')])
+    language = SelectField('Wikipedia Language', choices=[('de', 'de'), ('nl', 'nl')])
     level = SelectField('Minimum Tournament Level', choices=[(1, 'ITF Futures'), (2, 'ATP Challenger'), (3, 'ATP World Tour 250 & 500'),
                                                              (4, 'ATP World Tour 1000'), (5, 'ATP Tour Finals & Grand Slams & Olympics')])
     submit = SubmitField('Request')
