@@ -93,10 +93,26 @@ def LocalTourneyFormat(TournamentInformation, format, type, result):
         return (OutputList)
     # Dutch Format prints wins and finals losses
     if format == 'nl':
-
         #    [0#,1Opponent1Countrycode, 2Opponent1Name, 3Opponent1ID, 4MatchResult, 5TourneyName, 6TourneyID, 7TourneyLevel,
         #     8TourneyTier, 9TourneyLocation, 10TourneyDate, 11TourneySurface, 12TourneySurfaceInOut, 13Opponent2Countrycode,
         #     14Opponent2Name, O15pponent2ID, 16PartnerCountrycode, 17PartnerName, 18PartnerID, 19WinLoss, 20Opponent1Name, 21Opponent2Name, 22PartnerName])
+
+        # Catch exceptions which are not covered by pycountries
+        exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'CSK': 'CZ', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL',
+                      'POR': 'PT', 'RSA': 'ZA', 'SCG': 'RS', 'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT', '': ''}
+        if TournamentInformation[1] in exceptions:
+            cc1 = str(exceptions[TournamentInformation[1]])
+        else:
+            cc1 = str(pycountry.countries.get(alpha_3=TournamentInformation[1]).alpha_2)
+        if TournamentInformation[13] in exceptions:
+            cc2 = str(exceptions[TournamentInformation[13]])
+        else:
+            cc2 = str(pycountry.countries.get(alpha_3=TournamentInformation[13]).alpha_2)
+        if TournamentInformation[16] in exceptions:
+            cc3 = str(exceptions[TournamentInformation[16]])
+        else:
+            cc3 = str(pycountry.countries.get(alpha_3=TournamentInformation[16]).alpha_2)
+
         #Dutch Format  prints wins and finals losses
         if type == 'singles' and TournamentInformation[19] == result:
             #Print start of row and apply potential color coding
@@ -110,15 +126,7 @@ def LocalTourneyFormat(TournamentInformation, format, type, result):
             #Print tournament surface
             ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
             #Print opponent
-            #Catch exceptions which are not covered by pycountries
-            exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT',
-                          'RSA': 'ZA', 'SCG': 'RS', 'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
-            if TournamentInformation[1] in exceptions:
-                cc = str(exceptions[TournamentInformation[1]])
-            else:
-                cc = str(pycountry.countries.get(alpha_3=TournamentInformation[1]).alpha_2)
-
-            ResultList.append('| {{' + cc + '-VLAG}} [[' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + ']]')
+            ResultList.append('| {{' + cc1 + '-VLAG}} [[' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + ']]')
             #Print result
             ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
             ResultList.append('| ')
@@ -136,20 +144,8 @@ def LocalTourneyFormat(TournamentInformation, format, type, result):
             #Print tournament surface
             ResultList.append('| ' + str(LocalSurfaceFormat(TournamentInformation[11], TournamentInformation[12], format)))
             # Print partner
-            ResultList.append('| [[' + str(TournamentInformation[17]) + '|' + str(TournamentInformation[17]) + ']]')
+            ResultList.append('| {{' + cc3 + '-VLAG}} [[' + str(TournamentInformation[17]) + '|' + str(TournamentInformation[17]) + ']]')
             #Print opponents
-            #Catch exceptions which are not covered by pycountries
-            exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT',
-                          'RSA': 'ZA', 'SCG': 'RS', 'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
-            if TournamentInformation[1] in exceptions:
-                cc1 = str(exceptions[TournamentInformation[1]])
-            else:
-                cc1 = str(pycountry.countries.get(alpha_3=TournamentInformation[1]).alpha_2)
-            if TournamentInformation[13] in exceptions:
-                cc2 = str(exceptions[TournamentInformation[13]])
-            else:
-                cc2 = str(pycountry.countries.get(alpha_3=TournamentInformation[13]).alpha_2)
-
             ResultList.append('| {{' + cc1 + '-VLAG}} [[' + str(TournamentInformation[2]) + '|' + str(TournamentInformation[2]) + ']] <br /> {{' + cc2 + '-VLAG}} [[' + str(TournamentInformation[14]) + '|' + str(TournamentInformation[14]) + ']]')
             #Print result
             ResultList.append('| ' + str(LocalMatchResultFormat(TournamentInformation[4], format)))
@@ -258,7 +254,7 @@ def GetATPTournamentWins(ATPID, Matchtype, MinimumTier = mintourneytier):
             PositionPartner1 = PositionTourneySurface2.findNext('div', {"class": "activity-tournament-caption"})
             PositionPartner2 = PositionPartner1.findNext('a')
             #Backup value in case Wikidata has no information on country code
-            PartnerCountrycode = 'WELT'
+            PartnerCountrycode = ''
             PartnerName = PositionPartner2.contents[0].strip()
             PartnerID = PositionPartner2['href'].split('/')[4].strip()
 
@@ -374,4 +370,3 @@ def TournamentWinsOutput(ListTournamentWins, Language, MatchType):
         Output = OutputHeader1 + OutputList1 + OutputHeader2 + OutputList2 + OutputClose
 
     return Output
-
