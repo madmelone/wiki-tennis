@@ -58,8 +58,8 @@ def LocalRankingFormat(RankingInformation, format=countryformat):
     elif format == 'nl':
         # Print ranking number number & player name including link
         # Catch exceptions which are not covered by pycountries
-        exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL', 'POR': 'PT', 'SCG': 'RS',
-                      'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
+        exceptions = {'ANT': 'NL', 'BUL': 'BG', 'CRO': 'HR', 'CSK': 'CZ', 'GER': 'DE', 'MON': 'MC', 'NED': 'NL',
+                      'POR': 'PT', 'RSA': 'ZA', 'SCG': 'RS', 'SLO': 'SI', 'SUI': 'CH', 'TPE': 'XT'}
         if RankingInformation[1] in exceptions:
             cc2 = str(exceptions[RankingInformation[1]])
         else:
