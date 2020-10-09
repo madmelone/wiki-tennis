@@ -12,7 +12,9 @@ from ClassLocalization import *
 from ClassWikidata import *
 
 #External imports
+import requests
 from Settings import countryformat
+from bs4 import BeautifulSoup
 import pycountry
 
 def LocalRankingFormat(RankingInformation, format=countryformat):
@@ -130,7 +132,8 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, language = country
     DateList = []
     #Find dropdown menu with available dates
     URLDateList = 'https://www.atptour.com/en/rankings/' + InputMatchType
-    DateCheck = GetSoup(URLDateList, {})
+    DateListRequest = requests.get(URLDateList)
+    DateCheck = BeautifulSoup(DateListRequest.text, "html.parser")
     #Write list of all available dates
     AvailableDatesDropdown = DateCheck.find("ul", {"data-value": "rankDate"})
     DropdownValues = AvailableDatesDropdown.findAll("li")
@@ -146,7 +149,8 @@ def GetATPWorldRanking(MatchType= 'singles', RankingCut = 10, language = country
     #Set URL
     url = 'https://www.atptour.com/en/rankings/' + InputMatchType + '?rankDate=' + InputRankingDate + '&rankRange=1-' + InputRankingCut
     #Open website
-    soup = GetSoup(url, {})
+    req = requests.get(url)
+    soup = BeautifulSoup(req.text, "html.parser")
 
     #Read ranking and player information
     ListIDs = []
@@ -243,18 +247,19 @@ def GetWTAWorldRanking(MatchType= 'singles', RankingCut = 100, language = countr
     else:
         InputRankingCut = str(RankingCut)
 
-    # # Set URL for really live scenarios outside testing
-    # url = 'https://www.wtatennis.com/rankings/' + InputMatchType
-    # # Open website
-    # soup = GetSoup(url, {})
-    #
+    #Set URL for really live scenarios outside testing
+    #url = 'https://www.wtatennis.com/rankings/' + InputMatchType
+    #Open website
+    #req = requests.get(url)
+    #soup = BeautifulSoup(req.text, "html.parser")
+
     #Set URL just for internal testing purposes to a downloaded html file
     if MatchType == 'singles':
         f = open('wtatest.html', 'r')
     elif MatchType == 'doubles':
         f = open('doubles.html', 'r')
     s = f.read()
-    soup = GetSoup(s, True)
+    soup = BeautifulSoup(s, "html.parser")
 
     #Read ranking and player information
     ListIDs = []

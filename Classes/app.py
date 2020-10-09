@@ -3,9 +3,7 @@ from Settings import Config
 
 from AppPlayerTourneywins import TournamentWinsOutput, GetTournamentWins
 from AppPlayerWorldranking import GetWorldRanking, RankingOutput
-from AppTourneydraw import TournamentDrawOutput
-from ScrapeTournamentITF import ScrapeTournamentITF
-from forms import FormPlayerWorldranking, FormPlayerTournamentwins, FormTournamentdraw
+from forms import FormPlayerWorldranking, FormPlayerTournamentwins
 
 #Initiate Flask with config
 app = Flask(__name__)
@@ -43,22 +41,13 @@ def playerwins():
         return redirect(url_for('outputplayerwins', org=org, type=type, player=player, language=language, level=level))
     return render_template('playerwins.html', form=form)
 
-@app.route('/tourneydraw/', methods=['GET', 'POST'])
+@app.route('/tourneydraw/')
 def tourneydraw():
-    form = FormTournamentdraw()
-    if request.method == 'POST':
-        language = request.form.get('language')
-        org = request.form.get('org')
-        url = request.form.get('url')
-        year = request.form.get('year')
-        doubles = request.form.get('doubles')
-        format = request.form.get('format')
-        qual = request.form.get('qual')
-        compact = request.form.get('compact')
-        abbr = request.form.get('abbr')
-        seed_links = request.form.get('seed_links')
-        return redirect(url_for('outputtourneydraw', org=org, url=url, year=year, doubles=doubles, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links))
-    return render_template('tourneydraw.html', form=form)
+    #org = request.args.get('org', default = 1, type = str)
+    #type = request.args.get('type', default = '*', type = str)
+    #year = request.args.get('cut', default = '*', type = str)
+    #language = request.args.get('language', default = '*', type = str)
+    return render_template('tourneydraw.html')
 
 @app.route('/outputranking/', methods=['GET', 'POST'])
 def outputranking():
@@ -85,27 +74,6 @@ def outputplayerwins():
     wins = GetTournamentWins(org, player, type, level)
     result = TournamentWinsOutput(wins, language, type)
     return render_template('outputplayerwins.html', result=result)
-
-@app.route('/outputtourneydraw/', methods=['GET', 'POST'])
-def outputtourneydraw():
-    #Get variables from form
-    language = request.args.get('language', type = int)
-    org = request.args.get('org', type = str)
-    url = request.args.get('url', type = str)
-    year = request.args.get('year', type = int)
-    doubles = request.args.get('doubles', type = int)
-    format = request.args.get('format', type = int)
-    qual = request.args.get('qual', type = int)
-    compact = request.args.get('compact', type = int)
-    abbr = request.args.get('abbr', type = int)
-    seed_links = request.args.get('seed_links', type = int)
-    if "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?" in url:
-        # Scrape data, then create draw
-        data = ScrapeTournamentITF(url=url, qual=qual, doubles=doubles)
-        draw = TournamentDrawOutput(data=data, year=year, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
-    else: # extremely basic input validation
-        draw = "Invalid URL, should be in format: https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"
-    return render_template('outputtourneydraw.html', result=draw)
 
 if __name__ == '__main__':
     app.run(debug=True)
