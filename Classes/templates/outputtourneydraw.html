@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set active_page = "tourneydraw" %}
+
+{% block content %}
+    <div class="home">
+        <h2>Tournament draw</h2>
+    </div>
+    <div>
+      Draw:
+    </div>
+    <div>
+        <button onclick="copy_to_clipboard('Wikicode');">Copy Wikicode</button>
+    </div>
+    <textarea cols="100" rows="25" id="Wikicode">{{ result | safe }}</textarea>
+
+{% endblock %}
