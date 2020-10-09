@@ -3,52 +3,7 @@
 
 {% block content %}
   <div class="home">
-    <h2>Tournament draw generator</h2>
+    <h2>Tournament Draws</h2>
+    <p>Under construction</p>
   </div>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.language.label }}</label>
-        <div class="col-sm-4">{{ form.language }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.org.label }}</label>
-        <div class="col-sm-4">{{ form.org }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.url.label }}</label>
-        <div class="col-sm-4">{{ form.url }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.year.label }}</label>
-        <div class="col-sm-4">{{ form.year }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.doubles.label }}</label>
-        <div class="col-sm-4">{{ form.doubles }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.format.label }}</label>
-        <div class="col-sm-4">{{ form.format }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.qual.label }}</label>
-        <div class="col-sm-4">{{ form.qual }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.compact.label }}</label>
-        <div class="col-sm-4">{{ form.compact }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.abbr.label }}</label>
-        <div class="col-sm-4">{{ form.abbr }}</div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2 form-control-label">{{ form.seed_links.label }}</label>
-        <div class="col-sm-4">{{ form.seed_links }}</div>
-      </div>
-      <div class="col-sm-2">
-        {{ form.submit() }}
-      </div>
-    </form>
 {% endblock %}

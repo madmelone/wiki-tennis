@@ -7,6 +7,8 @@ from Settings import countryformat
 from ClassLocalization import *
 from ClassSupportFunctions import *
 from ClassWikidata import WikidataGetPlayerInfoshort
+import requests
+from bs4 import BeautifulSoup
 import os
 import pycountry
 
@@ -173,7 +175,8 @@ def GetATPTournamentWins(ATPID, Matchtype, MinimumTier = mintourneytier):
     n = 0
     #Open ATP activity website
     url = 'https://www.atptour.com/en/players/-/' + ATPID + '/player-activity?year=all&matchType=' + Matchtype
-    soup = GetSoup(url, {})
+    req = requests.get(url)
+    soup = BeautifulSoup(req.text, "html.parser")
 
     #Read tournaments
     tournaments = soup.findAll("table", { "class" : "mega-table" })
