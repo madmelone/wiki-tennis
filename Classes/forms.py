@@ -22,3 +22,16 @@ class FormPlayerTournamentwins(FlaskForm):
     level = SelectField('Minimum Tournament Level', choices=[(1, 'ITF Futures'), (2, 'ATP Challenger'), (3, 'ATP World Tour 250 & 500'),
                                                              (4, 'ATP World Tour 1000'), (5, 'ATP Tour Finals & Grand Slams & Olympics')])
     submit = SubmitField('Request')
+
+class FormTournamentdraw(FlaskForm):
+    language = SelectField('Wikipedia language', choices=[('en', 'en')])
+    org = SelectField('Organisation', choices=[('itf', 'ITF')])
+    url = StringField('Tournament link', validators=[DataRequired()])
+    year = IntegerField('Year', validators=[DataRequired()])
+    doubles = SelectField('Tournament type', choices=[(0, 'singles'), (1, 'doubles')])
+    format = SelectField('Match format', choices=[(3, 'best of 3'), (5, 'best of 5'), (2, 'best of 3; tiebreak deciding set'), (35, 'best of 3; best of 5 final')])
+    qual = SelectField('Qualifying', choices=[(0, 'no'), (1, 'yes')])
+    compact = SelectField('Compact draws', choices=[(1, 'yes'), (0, 'no')])
+    abbr = SelectField('Abbreviated names (e.g. R Federer)', choices=[(1, 'yes'), (0, 'no')])
+    seed_links = SelectField('Seed links', choices=[(1, 'yes'), (0, 'no')])
+    submit = SubmitField('Request')
