@@ -10,7 +10,7 @@ from ClassSupportFunctions import GetSoup
 
 def ExtractTeam(team):
     # Extracts [name, country code, [seeds]] for player(s) in team from string.
-    team = team.text.strip(" \n").replace("\xa0", " ")
+    team = team.text.strip(" \n\r").replace("\xa0", " ")
     players = team.split(" / ")
     team_data = []
     for player in players:
@@ -40,7 +40,7 @@ def ExtractScore(score, match, winners):
     # Walkovers = [[winner, ["w/o"]], ["Walkover"]]
     # Byes = [[winner, []], ["BYE"]]
     winner = 0 if match[0][0][0] in winners and match[0][0][0] != "BYE" else 1
-    score = score.text.strip(" |\n")
+    score = score.text.strip(" |\n\r")
     score = [s.split("-") for s in score.split(" ")]
 
     if match[0][0][0] == "BYE" or match[1][0][0] == "BYE":
@@ -83,7 +83,7 @@ def ExtractScore(score, match, winners):
     return new_score
 
 def ExtractTournament(soup, qual, doubles):
-    round_names = [f.text.strip(" \n") for f in soup.find_all("div", {"id": "divRound"})]
+    round_names = [f.text.strip(" \n\r") for f in soup.find_all("div", {"id": "divRound"})]
     rounds = soup.find_all("li", {"id": "liRound"}) # contains all matches in each round
 
     if qual:
@@ -132,7 +132,7 @@ def FixByes(soup):
     '<div class="hlPlayer" id="divPlayerBottom" style="border-bottom: 1px solid #999; border-right: 1px solid #999; padding: 0px 3px 2px 3px;"><span style="display: block; height: 12px;"><span id="spnPlayerBottom1">BYE</span></span></div>',
     '<div class="hlPlayer" id="divPlayerTop" style="border-bottom: 1px solid #999; padding: 0px 3px 2px 3px;"><span style="display: block; height: 11px;"><span id="spnPlayerTop1">BYE</span></span></div>',
     '<div class="hlPlayer" id="divPlayerBottom" style="border-bottom: 1px solid #999; border-right: 1px solid #999; padding: 0px 3px 2px 3px;"><span style="display: block; height: 11px;"><span id="spnPlayerBottom1">BYE</span></span></div>']
-    html = ">".join([f.strip("\t\n ") for f in str(soup).split(">")])
+    html = ">".join([f.strip("\t\n\r ") for f in str(soup).split(">")])
     for i in range(4):
         html = html.replace(empty[i], bye[i])
     soup = GetSoup(html, True)
