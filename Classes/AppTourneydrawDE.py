@@ -28,9 +28,9 @@ def GetNameLink(name, country):
                 title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
                 if len(title.split(" ")) >= 3 and country == "RUS":
                     title = title.split(" ")
-                    title = title[0] + " " + title[2:]
+                    title = title[0] + " " + " ".join(title[2:])
                 wikitext = title
-                pipe = True # If False: if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
+                pipe = False # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
         else: # article exists for name but for different person
             wikitext = name + " (Tennisspieler)"
             pipe = True
@@ -61,7 +61,6 @@ class Player():
 class Match():
     def __init__(self, match, sets):
         self.parsed = False # match has been checked for retirements, tiebreakers etc.
-        print (match)
         self.teams = [[Player(f) for f in match[0]], [Player(f) for f in match[1]]]
         self.score = match[2]
         for i in range((sets - len(match[2]) + 1)):
