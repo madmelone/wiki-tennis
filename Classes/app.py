@@ -3,7 +3,8 @@ from Settings import Config
 
 from AppPlayerTourneywins import TournamentWinsOutput, GetTournamentWins
 from AppPlayerWorldranking import GetWorldRanking, RankingOutput
-from AppTourneydraw import TournamentDrawOutput
+from AppTourneydrawEN import TournamentDrawOutputEN
+from AppTourneydrawDE import TournamentDrawOutputDE
 from ScrapeTournamentITF import ScrapeTournamentITF
 from forms import FormPlayerWorldranking, FormPlayerTournamentwins, FormTournamentdraw
 
@@ -57,7 +58,7 @@ def tourneydraw():
         compact = request.form.get('compact')
         abbr = request.form.get('abbr')
         seed_links = request.form.get('seed_links')
-        return redirect(url_for('outputtourneydraw', org=org, url=url, year=year, doubles=doubles, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links))
+        return redirect(url_for('outputtourneydraw', language=language, org=org, url=url, year=year, doubles=doubles, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links))
     return render_template('tourneydraw.html', form=form)
 
 @app.route('/outputranking/', methods=['GET', 'POST'])
@@ -89,7 +90,7 @@ def outputplayerwins():
 @app.route('/outputtourneydraw/', methods=['GET', 'POST'])
 def outputtourneydraw():
     #Get variables from form
-    language = request.args.get('language', type = int)
+    language = request.args.get('language', type = str)
     org = request.args.get('org', type = str)
     url = request.args.get('url', type = str)
     year = request.args.get('year', type = int)
@@ -102,9 +103,12 @@ def outputtourneydraw():
     if "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?" in url:
         # Scrape data, then create draw
         data = ScrapeTournamentITF(url=url, qual=qual, doubles=doubles)
-        draw = TournamentDrawOutput(data=data, year=year, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
+        if language == "en":
+            draw = TournamentDrawOutputEN(data=data, year=year, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
+        elif language == "de":
+            draw = TournamentDrawOutputDE(data=data, year=year, format=format, qual=qual, compact=compact, abbr=abbr)
     else: # extremely basic input validation
-        draw = "Invalid URL, should be in format: https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"
+        draw = "Invalid URL, should be a printable draw in format: https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"
     return render_template('outputtourneydraw.html', result=draw)
 
 if __name__ == '__main__':

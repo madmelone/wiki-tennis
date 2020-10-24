@@ -1,4 +1,4 @@
-# Name:     Tournament draw generator
+# Name:     Tournament draw generator (enwiki)
 # Author:   Somnifuguist (w.wiki/fDy)
 # Date:     10-10-2020
 # Content:  Generates wikitext for tennis tournament draws
@@ -74,7 +74,7 @@ class Tournament():
         t.round_names = round_names[:t.rounds-1] + ["Qualifying Competition", "Qualified"] if t.qual else round_names[:t.rounds-3] + round_names[-4:] # sometimes called "Qualifying Round"
 
         # Get dicts for players' wikilinks, and year-accurate flagicons
-        t.name_links = LoadJSON("name_links.json") # database of all name links already looked up
+        t.name_links = LoadJSON("NameLinksEN.json") # database of all name links already looked up
         t.flagicons = {}
         teams = [[f for f in match.teams[0]] + [f for f in match.teams[1]] for match in t.data[0]]
         players = list(itertools.chain.from_iterable(teams)) # list of players in first round i.e. all players
@@ -83,7 +83,7 @@ class Tournament():
                 t.name_links[player.name] = GetNameLink(player.name)
             if player.country not in t.flagicons:
                 t.flagicons[player.country] = GetFlagicon(player.country, year)
-        SaveJSON("name_links.json", t.name_links)
+        SaveJSON("NameLinksDE.json", t.name_links)
         t.lucky_losers = []
 
     def SplitData(t, n, r):
@@ -178,10 +178,10 @@ class Tournament():
                 for i in range(2): # add seed, team name/flag, score parameters for each team in given match
                     team = match.teams[i]
                     bold = "'''" if match.winner == i else ""
-                    name_text = "<br />&nbsp;".join([(t.flagicons[f.country] + " " + (bold + t.name_links[f.name][1 + short_names] + bold) if not match.bye else "") for f in team])
+                    name_text = "<br />&amp;nbsp;".join([(t.flagicons[f.country] + " " + (bold + t.name_links[f.name][1 + short_names] + bold) if not match.bye else "") for f in team])
                     rd = "| RD" + str(j+1) + "-"
-                    p.text += [rd + "seed" + str(team_no) + "=" + ("" if match.bye else ("&nbsp;" if team[0].seed == [] else "/".join(team[0].seed)))]
-                    p.text += [rd + "team" + str(team_no) + "=" + (name_text if name_text != "<br />&nbsp;" else "")]
+                    p.text += [rd + "seed" + str(team_no) + "=" + ("" if match.bye else ("&amp;nbsp;" if team[0].seed == [] else "/".join(team[0].seed)))]
+                    p.text += [rd + "team" + str(team_no) + "=" + (name_text if name_text != "<br />&amp;nbsp;" else "")]
 
                     for set in range(match.sets):
                         p_score  = "" if match.bye else match.score[set+1][i]
@@ -218,8 +218,8 @@ class Tournament():
                 t.MakeSection(p, data=section, rounds=4, round_names=t.round_names[:4], format=(3 if t.format > 5 else t.format), byes=t.byes, compact=compact, short_names=abbr)
         t.MakeSeeds(p, sections, seed_links)
 
-def TournamentDrawOutput(data, year, format, qual, compact, abbr, seed_links):
+def TournamentDrawOutputEN(data, year, format, qual, compact, abbr, seed_links):
     p = Page()
     t = Tournament(data=data, format=format, qual=qual, year=year)
-    t.MakeDraw(p, compact=compact, abbr=True, seed_links=seed_links)
+    t.MakeDraw(p, compact=compact, abbr=abbr, seed_links=seed_links)
     return "\n".join(p.text)
