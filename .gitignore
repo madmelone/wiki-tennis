@@ -5,3 +5,5 @@
 /Classes/notevengibberish.py
 /Classes/number3.py
 *.pyc
+*.json
+/Classes/data/
