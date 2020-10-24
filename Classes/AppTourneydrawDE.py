@@ -12,7 +12,7 @@ import re
 
 name_links = {}
 
-def GetNameLink(name):
+def GetNameLink(name, country):
     # Finds and returns formatted name and wikilinks for given name.
     name = HumanName(name)
     name.capitalize(force=True)
@@ -26,13 +26,16 @@ def GetNameLink(name):
             if "Weitergeleitet von" in soup:
                 soup = GetSoup(soup, True)
                 title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
+                if len(title.split(" ")) >= 3 and country == "RUS":
+                    title = title.split(" ")
+                    title = title[0] + " " + title[2:]
                 wikitext = title
-                pipe = True # if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
+                pipe = True # If False: if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
         else: # article exists for name but for different person
             wikitext = name + " (Tennisspieler)"
             pipe = True
     wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
-    split_name = name.split(" ")
+    split_name = wikitext.replace(" (Tennisspieler)", "").split(" ")
     abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
     abbr_wikilink = wikitext + "|" + abbr_name
     return [name, wikilink, abbr_wikilink]
@@ -45,7 +48,7 @@ class Player():
     def __init__(self, player):
         global name_links
         if player[0] not in name_links:
-            name_links[player[0]] = GetNameLink(player[0])
+            name_links[player[0]] = GetNameLink(player[0], player[1])
         self.playertext = {0: "{{" + player[1] + "|" + name_links[player[0]][1] + "}}", 1: "{{" + player[1] + "|" + name_links[player[0]][2] + "}}"}
         length0 = len(name_links[player[0]][1].split("|")[-1].replace("Ziel=", ""))
         length1 = len(name_links[player[0]][2].split("|")[-1])
@@ -170,7 +173,7 @@ class Tournament():
                     bold = "'''" if match.winner == i else ""
                     name_text = "<br />&amp;nbsp;".join([(bold + f.playertext[abbr] + bold if not match.bye else "") for f in team])
                     rd = "| RD" + str(j+1) + "-"
-                    num = "0" + str(team_no) if (team_no < 10 and rounds > 3) or compact else str(team_no)
+                    num = "0" + str(team_no) if team_no < 10 and (rounds > 3 or compact) else str(team_no)
                     p.text += [rd + "seed" + num + "=" + ("" if match.bye else ("&amp;nbsp;" if team[0].seed == [] else "/".join(team[0].seed)))]
                     p.text += [rd + "team" + num + "=" + (name_text if name_text != "<br />&amp;nbsp;" else "")]
 
