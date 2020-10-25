@@ -47,9 +47,11 @@ class Page():
 class Player():
     def __init__(self, player):
         global name_links
+        countries = LoadJSON("CountriesDE.json")
+        country = countries[player[1]] if player[1] in countries else player[1]
         if player[0] not in name_links:
-            name_links[player[0]] = GetNameLink(player[0], player[1])
-        self.playertext = {0: "{{" + player[1] + "|" + name_links[player[0]][1] + "}}", 1: "{{" + player[1] + "|" + name_links[player[0]][2] + "}}"}
+            name_links[player[0]] = GetNameLink(player[0], country)
+        self.playertext = {0: "{{" + country + "|" + name_links[player[0]][1] + "}}", 1: "{{" + country + "|" + name_links[player[0]][2] + "}}", 2: "{{" + country + "|" + name_links[player[0]][1] + "}}"}
         length0 = len(name_links[player[0]][1].split("|")[-1].replace("Ziel=", ""))
         length1 = len(name_links[player[0]][2].split("|")[-1])
         if length0 > 10:
@@ -122,7 +124,7 @@ class Tournament():
                 letters = ["A", "B"]
                 try:
                     for c, f in enumerate(seeds[l][0]):
-                        page += ["| " + str(l) + letters[c] + " = " + f.playertext[0]]
+                        page += ["| " + str(l) + letters[c] + " = " + f.playertext[2]]
                     reached = t.round_names[seeds[l][1]].replace("Erste ", "1. ").replace("Zweite ", "2. ").replace("Dritte ", "3. ").replace("Vierte ", "4. ")
                     page += ["| " + str(l) + "R = " + reached]
                 except KeyError:
@@ -135,7 +137,7 @@ class Tournament():
         p.text += ["", "==Qualifikation==", '{| class="wikitable"', '|-', '! Qualifikanten']
         for match in t.data[-1]:
             winner = match.winner
-            players = ["| " + f.playertext[0] for f in match.teams[winner]]
+            players = ["| " + f.playertext[2] for f in match.teams[winner]]
             p.text += ["|-\n" + "\n".join(players)]
         p.text += ["|}"]
 

@@ -83,7 +83,7 @@ class Tournament():
                 t.name_links[player.name] = GetNameLink(player.name)
             if player.country not in t.flagicons:
                 t.flagicons[player.country] = GetFlagicon(player.country, year)
-        SaveJSON("NameLinksDE.json", t.name_links)
+        SaveJSON("NameLinksEN.json", t.name_links)
         t.lucky_losers = []
 
     def SplitData(t, n, r):
