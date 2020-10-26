@@ -52,10 +52,13 @@ def ExtractScore(score, match, winners):
         for set in score:
             set = [f.replace("[", "").replace("]", "") for f in set]
             if set == ["Retired"]:
-                if max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1:
+                print ("aaa", new_score[-1])
+                if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
                     new_score.append(['0', '0', "Retired"]) # retirement happened after set finished
-                else:
+                elif len(new_score[-1]) == 2:
                     new_score[-1] += set # retirement happened mid-set
+                elif len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1:
+                    new_score.append(['0', '0', "Retired"]) # retirement happened after tiebreak set finished
             elif set != [""]:
                 tiebreaker = re.search(r"\(\d{1,}\)", set[1])
                 if tiebreaker:
