@@ -24,7 +24,7 @@ def ExtractTeam(team):
             digit = re.search(r"\[\d{1,2}\]", player)
             if digit:
                 seed.append(digit.group()[1:-1])
-            types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A"]
+            types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A", "SE"]
             for t in types:
                 if re.search(r"\(" + t + "\)", player):
                     seed.append(t)

@@ -123,7 +123,7 @@ class Tournament():
                             seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1)]
 
         if seeds != {}:
-            page += ["", "==Setzliste==", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
+            page += ["", "== Setzliste ==", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
             for l in range(1, max(seeds) + 1):
                 letters = ["A", "B"]
                 try:
@@ -192,13 +192,13 @@ class Tournament():
 
     def MakeDraw(t, p, compact, abbr):
         if t.qual:
-            p.text += ["", "==Ergebnisse=="]
+            p.text += ["", "== Ergebnisse =="]
             sections = t.SplitData(len(t.data[-1]), t.rounds)
             for i in range(len(sections)): # no logical section headings
                 ordinal = num2words(i+1, ordinal=True).capitalize()
                 t.MakeSection(p, data=sections[i], rounds=t.rounds, round_names=t.round_names[:-1], format=t.format, byes=t.byes, compact=compact, abbr=abbr)
         else:
-            p.text += ["", "==Ergebnisse=="]
+            p.text += ["", "== Ergebnisse =="]
             parts = int((2**t.rounds)/t.template_size) # number of sections needed
             if parts > 1: # "Finals" section needed
                 if t.doubles:
