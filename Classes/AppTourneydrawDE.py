@@ -21,21 +21,23 @@ def GetNameLink(name, country):
     wikitext = name
     tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "ist der Name folgender Personen", "WTA", "ITF", "ATP"]
     pipe = False
+    rus = False
     if soup != None:
         if any([f in soup for f in tennis]): # player article exists, or no article exists
             if "Weitergeleitet von" in soup:
                 soup = GetSoup(soup, True)
                 title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
                 if len(title.split(" ")) >= 3 and country == "RUS":
-                    title = title.split(" ")
-                    title = title[0] + " " + " ".join(title[2:])
+                    name = title.split(" ")
+                    name = name[0] + " " + " ".join(name[2:])
+                    rus = True
                 wikitext = title
-                pipe = False # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
+                pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
         else: # article exists for name but for different person
             wikitext = name + " (Tennisspieler)"
             pipe = True
     wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
-    split_name = wikitext.replace(" (Tennisspieler)", "").split(" ")
+    split_name = (name if rus else wikitext).replace(" (Tennisspieler)", "").split(" ")
     abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
     abbr_wikilink = wikitext + "|" + abbr_name
     return [name, wikilink, abbr_wikilink]
@@ -48,7 +50,9 @@ class Player():
     def __init__(self, player):
         global name_links
         countries = LoadJSON("CountriesDE.json")
-        country = countries[player[1]] if player[1] in countries else player[1]
+        country = ""
+        if player != None:
+            country = countries[player[1]] if player[1] in countries else player[1]
         if player[0] not in name_links:
             name_links[player[0]] = GetNameLink(player[0], country)
         self.playertext = {0: "{{" + country + "|" + name_links[player[0]][1] + "}}", 1: "{{" + country + "|" + name_links[player[0]][2] + "}}", 2: "{{" + country + "|" + name_links[player[0]][1] + "}}"}
