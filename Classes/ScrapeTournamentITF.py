@@ -70,7 +70,10 @@ def ExtractScore(score, match, winners):
         if winner == 1: # reverse score order, as scores are always ordered with winner first
             for c, f in enumerate(new_score[1:]):
                 if "Retired" in f:
-                    new_score[c+1] = f[:-1][::-1] + [f[-1]]
+                    if len(f) == 3:
+                        new_score[c+1] = f[:-1][::-1] + [f[-1]]
+                    elif len(f) == 4: # tiebreak and retired
+                        new_score[c+1] = f[:-2][::-1] + [f[-2][::-1]] + [f[-1]]
                 elif len(f) == 3 and len(f[2]) == 2: # tiebreak
                     new_score[c+1] = f[:-1][::-1] + [f[-1][::-1]]
                 else:
