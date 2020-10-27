@@ -74,7 +74,7 @@ class Tournament():
         t.round_names = round_names[:t.rounds-1] + ["Qualifying Competition", "Qualified"] if t.qual else round_names[:t.rounds-3] + round_names[-4:] # sometimes called "Qualifying Round"
 
         # Get dicts for players' wikilinks, and year-accurate flagicons
-        t.name_links = LoadJSON("NameLinksEN.json") # database of all name links already looked up
+        t.name_links = LoadJSON("data/NameLinksEN.json") # database of all name links already looked up
         t.flagicons = {}
         teams = [[f for f in match.teams[0]] + [f for f in match.teams[1]] for match in t.data[0]]
         players = list(itertools.chain.from_iterable(teams)) # list of players in first round i.e. all players
@@ -83,7 +83,7 @@ class Tournament():
                 t.name_links[player.name] = GetNameLink(player.name)
             if player.country not in t.flagicons:
                 t.flagicons[player.country] = GetFlagicon(player.country, year)
-        SaveJSON("NameLinksEN.json", t.name_links)
+        SaveJSON("data/NameLinksEN.json", t.name_links)
         t.lucky_losers = []
 
     def SplitData(t, n, r):

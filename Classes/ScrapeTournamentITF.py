@@ -5,6 +5,7 @@
 
 import itertools
 import re
+from datetime import datetime
 
 from ClassSupportFunctions import GetSoup
 
@@ -24,7 +25,7 @@ def ExtractTeam(team):
             digit = re.search(r"\[\d{1,2}\]", player)
             if digit:
                 seed.append(digit.group()[1:-1])
-            types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A", "SE"]
+            types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A", "SE", "ITF", ]
             for t in types:
                 if re.search(r"\(" + t + "\)", player):
                     seed.append(t)
@@ -52,7 +53,6 @@ def ExtractScore(score, match, winners):
         for set in score:
             set = [f.replace("[", "").replace("]", "") for f in set]
             if set == ["Retired"]:
-                print ("aaa", new_score[-1])
                 if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
                     new_score.append(['0', '0', "Retired"]) # retirement happened after set finished
                 elif len(new_score[-1]) == 2:
@@ -144,11 +144,19 @@ def FixByes(soup):
     soup = GetSoup(html, True)
     return soup
 
-def ScrapeTournamentITF(url, qual, doubles):
+def ScrapeTournamentITF(url):
     soup = GetSoup(url, {})
+    title = soup.title.string
+    qual = "- Qualifying Draw" in title
+    doubles = "Doubles - " in title
+    year = re.search(r"\d{4}\)", title)
+    if year:
+        year = int(year.group()[:-1])
+    else:
+        year = datetime.now().year
     try:
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
     except IndexError: # html is missing name in tournament bracket
         soup = FixByes(soup)
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
-    return data
+    return data, qual, doubles, year
