@@ -5,4 +5,6 @@
 /Classes/notevengibberish.py
 /Classes/number3.py
 *.pyc
-/Classes/data/
+/Classes/_data/
+*NameLinks*
+*.log

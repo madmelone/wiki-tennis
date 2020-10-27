@@ -49,7 +49,7 @@ class Page():
 class Player():
     def __init__(self, player):
         global name_links
-        countries = LoadJSON("CountriesDE.json")
+        countries = LoadJSON("data/CountriesDE.json")
         country = ""
         if player != None:
             country = countries[player[1]] if player[1] in countries else player[1]
@@ -81,7 +81,7 @@ class Match():
 class Tournament():
     def __init__(t, data, format, qual, year):
         global name_links
-        name_links = LoadJSON("NameLinksDE.json")
+        name_links = LoadJSON("data/NameLinksDE.json")
         t.data = []
         t.match_tiebreak = format == 2 # deciding set tiebreak in e.g. in 2001 Aus Open Mixed Doubles
         format = 3 if format == 2 else format
@@ -97,7 +97,7 @@ class Tournament():
         t.round_names = round_names[:t.rounds-1] + ["Qualifikationsrunde", "qualifiziert"] if t.qual else round_names[:t.rounds-4] + round_names[-5:]
         t.lucky_losers = []
         t.template_size = 32 if t.rounds == 5 else 8 if (t.rounds == 6 and t.doubles) else 16 # template size for main draws
-        SaveJSON("NameLinksDE.json", name_links)
+        SaveJSON("data/NameLinksDE.json", name_links)
 
     def SplitData(t, n, r):
         # Splits first r rounds of data into n equal sections.
