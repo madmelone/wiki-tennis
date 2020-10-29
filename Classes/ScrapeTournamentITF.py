@@ -3,9 +3,9 @@
 # Date:     10-10-2020
 # Content:  Scrapes data from ITF printable draws
 
+import datetime
 import itertools
 import re
-from datetime import datetime
 
 from ClassSupportFunctions import GetSoup
 
@@ -149,14 +149,18 @@ def ScrapeTournamentITF(url):
     title = soup.title.string
     qual = "- Qualifying Draw" in title
     doubles = "Doubles - " in title
-    year = re.search(r"\d{4}\)", title)
-    if year:
-        year = int(year.group()[:-1])
+    date = re.search(r"\d{2}[ ]\w{3}[ ]\d{4}", title)
+    if date:
+        date = datetime.datetime.strptime(date.group(), "%d %b %Y").date()  # get date from title
     else:
-        year = datetime.now().year
+        date = re.search(r"\d{4}\)", title)
+        if date:
+            date = datetime.date(int(date.group()[:-1]), 1, 1)
+        else:
+            date = datetime.date(datetime.datetime.now().year, 1, 1)
     try:
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
     except IndexError: # html is missing name in tournament bracket
         soup = FixByes(soup)
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
-    return data, qual, doubles, year
+    return data, qual, doubles, date

@@ -1,6 +1,6 @@
 # Adapted from https://en.wikipedia.org/wiki/User:Dantheox/flags.rb
 
-def GetFlagicon(nation, year):
+def GetFlagEN(nation, year):
     if nation == "HOL":
         return "{{flagicon|NED}}"
     elif nation == "APA":
