@@ -3,25 +3,40 @@
 # Date:     10-10-2020
 # Content:  Generates wikitext for tennis tournament draws
 
-from ClassSupportFunctions import *
-
 import itertools
 from nameparser import HumanName
 from num2words import num2words
 import re
+import sys
 
-name_links = {}
+sys.path.append('data')
+from ClassSupportFunctions import *
+from GetFlagDE import GetFlagDE
 
-def GetNameLink(name, country):
+name_links = LoadJSON("data/NamesDE.json")
+static_name_links = {**LoadJSON("data/NamesDE_m.json"), **LoadJSON("data/NamesDE_f.json")}
+
+def GetNameLink(name, country, mens):
     # Finds and returns formatted name and wikilinks for given name.
     name = HumanName(name)
     name.capitalize(force=True)
     name = str(name)
+
+    global name_links
+    global static_links
+
+    lower = name.strip().lower().replace("-", "").replace(" ", "").replace(".", "") # key for name in dict
+    if lower in static_name_links:
+        return static_name_links[lower]
+
+    if lower in name_links:
+        return name_links[lower]
     soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
     wikitext = name
     tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "ist der Name folgender Personen", "WTA", "ITF", "ATP"]
     pipe = False
     rus = False
+    disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
     if soup != None:
         if any([f in soup for f in tennis]): # player article exists, or no article exists
             if "Weitergeleitet von" in soup:
@@ -34,30 +49,28 @@ def GetNameLink(name, country):
                 wikitext = title
                 pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
         else: # article exists for name but for different person
-            wikitext = name + " (Tennisspieler)"
+            wikitext = name + disamb
             pipe = True
     wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
-    split_name = (name if rus else wikitext).replace(" (Tennisspieler)", "").split(" ")
+    split_name = (name if rus else wikitext).replace(disamb , "").split(" ")
     abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
     abbr_wikilink = wikitext + "|" + abbr_name
-    return [name, wikilink, abbr_wikilink]
+    name_links[lower] = [wikilink, abbr_wikilink]
+    return name_links[lower]
 
 class Page():
     def __init__(self):
         self.text = [] # contains the draw wikitext
 
 class Player():
-    def __init__(self, player):
-        global name_links
-        countries = LoadJSON("data/CountriesDE.json")
+    def __init__(self, player, date, mens):
         country = ""
         if player != None:
-            country = countries[player[1]] if player[1] in countries else player[1]
-        if player[0] not in name_links:
-            name_links[player[0]] = GetNameLink(player[0], country)
-        self.playertext = {0: "{{" + country + "|" + name_links[player[0]][1] + "}}", 1: "{{" + country + "|" + name_links[player[0]][2] + "}}", 2: "{{" + country + "|" + name_links[player[0]][1] + "}}"}
-        length0 = len(name_links[player[0]][1].split("|")[-1].replace("Ziel=", ""))
-        length1 = len(name_links[player[0]][2].split("|")[-1])
+            country = GetFlagDE(player[1], date)
+        name_link = GetNameLink(player[0], country, mens)
+        self.playertext = {0: "{{" + country + "|" + name_link[0] + "}}", 1: "{{" + country + "|" + name_link[1] + "}}", 2: "{{" + country + "|" + name_link[0] + "}}"}
+        length0 = len(name_link[0].split("|")[-1].replace("Ziel=", ""))
+        length1 = len(name_link[1].split("|")[-1])
         if length0 > 10:
             self.playertext[0] = "{{nowrap|" + self.playertext[0] + "}}"
         if length1 > 10:
@@ -65,9 +78,9 @@ class Player():
         self.seed = [f.replace("Alt", "ALT") for f in player[2]]
 
 class Match():
-    def __init__(self, match, sets):
+    def __init__(self, match, sets, date, mens):
         self.parsed = False # match has been checked for retirements, tiebreakers etc.
-        self.teams = [[Player(f) for f in match[0]], [Player(f) for f in match[1]]]
+        self.teams = [[Player(f, date, mens) for f in match[0]], [Player(f, date, mens) for f in match[1]]]
         self.score = match[2]
         for i in range((sets - len(match[2]) + 1)):
             self.score += [["",""]] # add empty sets to matches where the full number of sets wasn't needed
@@ -79,15 +92,14 @@ class Match():
         self.sets = sets
 
 class Tournament():
-    def __init__(t, data, format, qual, year):
+    def __init__(t, data, mens, format, qual, date):
         global name_links
-        name_links = LoadJSON("data/NameLinksDE.json")
         t.data = []
         t.match_tiebreak = format == 2 # deciding set tiebreak in e.g. in 2001 Aus Open Mixed Doubles
         format = 3 if format == 2 else format
         for c, round in enumerate(data):
             sets = 3 if format == 3 or (format == 35 and c < len(data) - 1) or (format == 355 and c < len(data) - 2) else 5 # doesn't handle sets formats like 5353.
-            t.data.append([Match(match, sets) for match in round])
+            t.data.append([Match(match, sets, date, mens) for match in round])
         t.rounds = len(t.data)
         t.format = format # number of sets in matches, 35 if final has 5 sets
         t.doubles = len(data[0][0][0]) == 2
@@ -95,9 +107,8 @@ class Tournament():
         t.byes = sum([match[2][1][0] == "BYE" for match in data[0]]) > 0
         round_names = ["Erste Runde", "Zweite Runde", "Dritte Runde", "Vierte Runde", "Achtelfinale", "Viertelfinale", "Halbfinale", "Finale", "Sieg"]
         t.round_names = round_names[:t.rounds-1] + ["Qualifikationsrunde", "qualifiziert"] if t.qual else round_names[:t.rounds-4] + round_names[-5:]
-        t.lucky_losers = []
         t.template_size = 32 if t.rounds == 5 else 8 if (t.rounds == 6 and t.doubles) else 16 # template size for main draws
-        SaveJSON("data/NameLinksDE.json", name_links)
+        SaveJSON("data/NamesDE.json", name_links)
 
     def SplitData(t, n, r):
         # Splits first r rounds of data into n equal sections.
@@ -206,7 +217,7 @@ class Tournament():
                 else:
                     final_rounds = {5:2, 6:2, 7:3, 8:4} # number of rounds to show in "Finals" section given the number of rounds in the tournament
                 final_rounds = final_rounds[t.rounds]
-                p.text += ["===" + ", ".join(t.round_names[-(final_rounds+1):-1]) + "==="]
+                p.text += ["=== " + ", ".join(t.round_names[-(final_rounds+1):-1]) + " ==="]
                 t.MakeSection(p, data=t.data[-final_rounds:], rounds=final_rounds, round_names=t.round_names[-final_rounds - 1:-1], format=t.format, byes=False, compact=final_rounds==4, abbr=False)
             section_rounds = 5 if t.template_size == 32 else 3 if t.template_size == 8 else 4
             sections = t.SplitData(parts, section_rounds)
@@ -217,14 +228,14 @@ class Tournament():
                 if parts > 1:
                     half = halves[c // (parts // 2)] if c % (parts // 2) == 0 else ""
                     half_curr = half if half != "" else half_curr
-                    p.text += ["===" + half + "==="] if half != "" and t.rounds > 5 else []
-                    p.text += ["====" + half_curr + " " + str(int(index_curr%(parts/2))+1) + "===="]  # add section heading before each section
+                    p.text += ["=== " + half + " ==="] if half != "" and t.rounds > 5 else []
+                    p.text += ["==== " + half_curr + " " + str(int(index_curr%(parts/2))+1) + " ===="]  # add section heading before each section
                     index_curr += 1
                 t.MakeSection(p, data=section, rounds=section_rounds, round_names=t.round_names[:section_rounds], format=(3 if t.format > 5 else t.format), byes=t.byes, compact=compact, abbr=abbr)
         t.MakeSeeds(p, sections)
 
-def TournamentDrawOutputDE(data, year, format, qual, compact, abbr):
+def TournamentDrawOutputDE(data, date, format, mens, qual, compact, abbr):
     p = Page()
-    t = Tournament(data=data, format=format, qual=qual, year=year)
+    t = Tournament(data=data, mens=mens, format=format, qual=qual, date=date)
     t.MakeDraw(p, compact=compact, abbr=abbr)
     return "\n".join(p.text)

@@ -3,19 +3,27 @@
 # Date:     10-10-2020
 # Content:  Generates wikitext for tennis tournament draws
 
-from ClassSupportFunctions import *
-from GetFlagicon import GetFlagicon
-
 import itertools
 from nameparser import HumanName
 from num2words import num2words
 import re
+import sys
+
+sys.path.append('data')
+from ClassSupportFunctions import *
+from GetFlagEN import GetFlagEN
+
+name_links = {}
 
 def GetNameLink(name):
     # Finds and returns formatted name and wikilinks for given name.
     name = HumanName(name)
     name.capitalize(force=True)
     name = str(name)
+    global name_links
+    lower = name.strip().lower().replace("-", "").replace(" ", "").replace(".", "") # key for name in dict
+    if lower in name_links:
+        return name_links[lower]
     soup = GetSoup("https://en.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
     wikitext = name
     tennis = ["International Tennis Federation", "Prize money", "Grand Slam", "tennis career", "Wikipedia does not have", "may refer to", "WTA", "ITF", "ATP"]
@@ -34,22 +42,25 @@ def GetNameLink(name):
     split_name = name.split(" ")
     abbr_name = "-".join(f[0] for f in split_name[0].split("-")) + " " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J-L Struff"
     abbr_wikilink = "[[" + wikitext + "|" + abbr_name + "]]"
-    return [name, wikilink, abbr_wikilink]
+    name_links[lower] = [wikilink, abbr_wikilink]
+    return name_links[lower]
 
 class Page():
     def __init__(self):
         self.text = [] # contains the draw wikitext
 
 class Player():
-    def __init__(self, player):
-        self.name = player[0]
-        self.country = player[1]
+    def __init__(self, player, year):
+        self.flag = ""
+        if player != None:
+            self.flag = GetFlagEN(player[1], year)
+        self.name_link = GetNameLink(player[0])
         self.seed = player[2]
 
 class Match():
-    def __init__(self, match, sets):
+    def __init__(self, match, sets, year):
         self.parsed = False # match has been checked for retirements, tiebreakers etc.
-        self.teams = [[Player(f) for f in match[0]], [Player(f) for f in match[1]]]
+        self.teams = [[Player(f, year) for f in match[0]], [Player(f, year) for f in match[1]]]
         self.score = match[2] + [["",""]] * (sets - len(match[2]) + 1) # add empty sets to matches where the full number of sets wasn't needed
         self.winner = self.score[0][0]
         if self.score[0][1] == ["w/o"]:
@@ -59,12 +70,14 @@ class Match():
 
 class Tournament():
     def __init__(t, data, format, qual, year):
+        global name_links
+        name_links = LoadJSON("data/NamesEN.json")
         t.data = []
         t.match_tiebreak = format == 2 # deciding set tiebreak in e.g. 2001 Aus Open Mixed Doubles
         format = 3 if format == 2 else format
         for c, round in enumerate(data):
             sets = 3 if format == 3 or (format == 35 and c < len(data) - 1) or (format == 355 and c < len(data) - 2) else 5 # doesn't handle sets formats like 5353.
-            t.data.append([Match(match, sets) for match in round])
+            t.data.append([Match(match, sets, year) for match in round])
         t.rounds = len(t.data)
         t.format = format # number of sets in matches, 35 if final has 5 sets
         t.doubles = len(data[0][0][0]) == 2
@@ -73,18 +86,7 @@ class Tournament():
         round_names = ["First Round", "Second Round", "Third Round", "Fourth Round", "Fifth Round", "Quarterfinals", "Semifinals", "Final", "Champion" + ("s" if t.doubles else "")]
         t.round_names = round_names[:t.rounds-1] + ["Qualifying Competition", "Qualified"] if t.qual else round_names[:t.rounds-3] + round_names[-4:] # sometimes called "Qualifying Round"
 
-        # Get dicts for players' wikilinks, and year-accurate flagicons
-        t.name_links = LoadJSON("data/NameLinksEN.json") # database of all name links already looked up
-        t.flagicons = {}
-        teams = [[f for f in match.teams[0]] + [f for f in match.teams[1]] for match in t.data[0]]
-        players = list(itertools.chain.from_iterable(teams)) # list of players in first round i.e. all players
-        for player in players:
-            if player.name not in t.name_links:
-                t.name_links[player.name] = GetNameLink(player.name)
-            if player.country not in t.flagicons:
-                t.flagicons[player.country] = GetFlagicon(player.country, year)
-        SaveJSON("data/NameLinksEN.json", t.name_links)
-        t.lucky_losers = []
+        SaveJSON("data/NamesEN.json", name_links)
 
     def SplitData(t, n, r):
         # Splits first r rounds of data into n equal sections.
@@ -131,10 +133,9 @@ class Tournament():
                 try: # create text for seed, formatting (bold/italics) depending on result
                     style = ("'''" if seeds[l][1] == t.rounds else "''")
                     reached = t.round_names[seeds[l][1]].replace("Round", "round").replace("Competition", "competition") # upper-case is used in draw templates but not seeds
-                    lucky_loser = ", '''''Lucky loser'''''" if seeds[l][0] in [ll[0] for ll in t.lucky_losers] else ""
                     retiredwithdrew = ", retired" if seeds[l][2] == "r" else (", withdrew" if seeds[l][2] == "w/o" else "")
-                    name_text = " / ".join([t.flagicons[f.country] + " " + t.name_links[f.name][1] for f in seeds[l][0]])
-                    page += [number + (style if style == "'''" else "") + name_text + " " + (style if style == "''" else "") + "(" + reached + retiredwithdrew + lucky_loser + ")" + style]
+                    name_text = " / ".join([f.flag + " " + f.name_link[0] for f in seeds[l][0]])
+                    page += [number + (style if style == "'''" else "") + name_text + " " + (style if style == "''" else "") + "(" + reached + retiredwithdrew + ")" + style]
                 except KeyError: # seed not in draw, usually due to withdrawal
                     page += [number + "''(Withdrew)''"]
             page += ["}}"] + (["", "{{Seeds explanation}}"] if seed_links else [])
@@ -145,16 +146,8 @@ class Tournament():
         p.text += ["", "==Qualifiers==", "{{columns-list|colwidth=30em|"]
         for match in t.data[-1]:
             winner = match.winner
-            p.text += ["# " + " / ".join([t.flagicons[f.country] + " '''" + t.name_links[f.name][1] + "'''" for f in match.teams[winner]])]
+            p.text += ["# " + " / ".join([f.flag + " '''" + f.name_link[0] + "'''" for f in match.teams[winner]])]
         p.text += ["}}"]
-
-    def MakeLuckyLosers(t, p):
-        # Generates wikitext for lucky losers; not currently used as t.lucky_losers is always empty.
-        if t.lucky_losers != []:
-            p.text += ["", "==Lucky losers==", "{{columns-list|colwidth=30em|"]
-            for ll in t.lucky_losers:
-                p.text += ["# " + t.flagicons[ll[0]] + " '''" + t.name_links[ll[0]][1] + "'''"]
-            p.text += ["}}"]
 
     def MakeSection(t, p, data, rounds, round_names, format, byes, compact, short_names):
         # Generates wikitext for section of draw, using standard templates like {{16TeamBracket-Tennis3}}.
@@ -178,7 +171,7 @@ class Tournament():
                 for i in range(2): # add seed, team name/flag, score parameters for each team in given match
                     team = match.teams[i]
                     bold = "'''" if match.winner == i else ""
-                    name_text = "<br />&amp;nbsp;".join([(t.flagicons[f.country] + " " + (bold + t.name_links[f.name][1 + short_names] + bold) if not match.bye else "") for f in team])
+                    name_text = "<br />&amp;nbsp;".join([(f.flag + " " + (bold + f.name_link[short_names] + bold) if not match.bye else "") for f in team])
                     rd = "| RD" + str(j+1) + "-"
                     p.text += [rd + "seed" + str(team_no) + "=" + ("" if match.bye else ("&amp;nbsp;" if team[0].seed == [] else "/".join(team[0].seed)))]
                     p.text += [rd + "team" + str(team_no) + "=" + (name_text if name_text != "<br />&amp;nbsp;" else "")]
@@ -218,8 +211,8 @@ class Tournament():
                 t.MakeSection(p, data=section, rounds=4, round_names=t.round_names[:4], format=(3 if t.format > 5 else t.format), byes=t.byes, compact=compact, short_names=abbr)
         t.MakeSeeds(p, sections, seed_links)
 
-def TournamentDrawOutputEN(data, year, format, qual, compact, abbr, seed_links):
+def TournamentDrawOutputEN(data, date, format, qual, compact, abbr, seed_links):
     p = Page()
-    t = Tournament(data=data, format=format, qual=qual, year=year)
+    t = Tournament(data=data, format=format, qual=qual, year=date.year)
     t.MakeDraw(p, compact=compact, abbr=abbr, seed_links=seed_links)
     return "\n".join(p.text)
