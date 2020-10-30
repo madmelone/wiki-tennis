@@ -1,4 +1,4 @@
-# Adapted from https://en.wikipedia.org/wiki/User:Dantheox/flags.rb
+# Derived from https://en.wikipedia.org/wiki/User:Dantheox/flags.rb by English Wikipedia user Dantheox
 
 def GetFlagEN(nation, year):
     if nation == "HOL":
