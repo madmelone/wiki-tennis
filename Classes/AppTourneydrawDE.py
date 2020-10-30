@@ -106,7 +106,8 @@ class Tournament():
         t.qual = qual
         t.byes = sum([match[2][1][0] == "BYE" for match in data[0]]) > 0
         round_names = ["Erste Runde", "Zweite Runde", "Dritte Runde", "Vierte Runde", "Achtelfinale", "Viertelfinale", "Halbfinale", "Finale", "Sieg"]
-        t.round_names = round_names[:t.rounds-1] + ["Qualifikationsrunde", "qualifiziert"] if t.qual else round_names[:t.rounds-4] + round_names[-5:]
+        nonfinal = t.rounds < 5 # tournament starts with first round instead of final
+        t.round_names = round_names[:t.rounds-1] + ["Qualifikationsrunde", "qualifiziert"] if t.qual else round_names[:t.rounds-4+nonfinal] + round_names[-5+nonfinal:]
         t.template_size = 32 if t.rounds == 5 else 8 if (t.rounds == 6 and t.doubles) else 16 # template size for main draws
         SaveJSON("data/NamesDE.json", name_links)
 
@@ -134,7 +135,7 @@ class Tournament():
                             seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1)]
 
         if seeds != {}:
-            page += ["", "== Setzliste ==", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
+            page += ["", "=== Setzliste ===", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
             for l in range(1, max(seeds) + 1):
                 letters = ["A", "B"]
                 try:
@@ -203,13 +204,13 @@ class Tournament():
 
     def MakeDraw(t, p, compact, abbr):
         if t.qual:
-            p.text += ["", "== Ergebnisse =="]
+            p.text += ["", "=== Ergebnisse ==="]
             sections = t.SplitData(len(t.data[-1]), t.rounds)
             for i in range(len(sections)): # no logical section headings
                 ordinal = num2words(i+1, ordinal=True).capitalize()
                 t.MakeSection(p, data=sections[i], rounds=t.rounds, round_names=t.round_names[:-1], format=t.format, byes=t.byes, compact=compact, abbr=abbr)
         else:
-            p.text += ["", "== Ergebnisse =="]
+            p.text += ["", "=== Ergebnisse ==="]
             parts = int((2**t.rounds)/t.template_size) # number of sections needed
             if parts > 1: # "Finals" section needed
                 if t.doubles:
@@ -217,7 +218,7 @@ class Tournament():
                 else:
                     final_rounds = {5:2, 6:2, 7:3, 8:4} # number of rounds to show in "Finals" section given the number of rounds in the tournament
                 final_rounds = final_rounds[t.rounds]
-                p.text += ["=== " + ", ".join(t.round_names[-(final_rounds+1):-1]) + " ==="]
+                p.text += ["==== " + ", ".join(t.round_names[-(final_rounds+1):-1]) + " ===="]
                 t.MakeSection(p, data=t.data[-final_rounds:], rounds=final_rounds, round_names=t.round_names[-final_rounds - 1:-1], format=t.format, byes=False, compact=final_rounds==4, abbr=False)
             section_rounds = 5 if t.template_size == 32 else 3 if t.template_size == 8 else 4
             sections = t.SplitData(parts, section_rounds)
@@ -228,8 +229,8 @@ class Tournament():
                 if parts > 1:
                     half = halves[c // (parts // 2)] if c % (parts // 2) == 0 else ""
                     half_curr = half if half != "" else half_curr
-                    p.text += ["=== " + half + " ==="] if half != "" and t.rounds > 5 else []
-                    p.text += ["==== " + half_curr + " " + str(int(index_curr%(parts/2))+1) + " ===="]  # add section heading before each section
+                    p.text += ["==== " + half + " ===="] if half != "" and t.rounds > 5 else []
+                    p.text += ["===== " + half_curr + " " + str(int(index_curr%(parts/2))+1) + " ====="]  # add section heading before each section
                     index_curr += 1
                 t.MakeSection(p, data=section, rounds=section_rounds, round_names=t.round_names[:section_rounds], format=(3 if t.format > 5 else t.format), byes=t.byes, compact=compact, abbr=abbr)
         t.MakeSeeds(p, sections)
