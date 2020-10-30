@@ -135,7 +135,7 @@ class Tournament():
                             seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1)]
 
         if seeds != {}:
-            page += ["", "=== Setzliste ===", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
+            page += ["", ("== Einzel ==" if not t.doubles else "== Doppel =="), "=== Setzliste ===", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
             for l in range(1, max(seeds) + 1):
                 letters = ["A", "B"]
                 try:
