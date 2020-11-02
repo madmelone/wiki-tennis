@@ -3,8 +3,8 @@ import json
 import requests
 import time
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
+# from selenium import webdriver
+# from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 def GetCountrycode(filepath):
     filename = os.path.basename(filepath)
@@ -37,14 +37,14 @@ def SaveJSON(path, data):
 def Dedupe(x):
     return list(dict.fromkeys(x))
 
-def GetSoupSelenium(url):
-    options = FirefoxOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Firefox(options=options)
-    driver.get(url)
-    time.sleep(5) # wait for JavaScript to load
-    source = driver.page_source
-    soup = get_soup(source, True)
+# def GetSoupSelenium(url):
+#     options = FirefoxOptions()
+#     options.add_argument("--headless")
+#     driver = webdriver.Firefox(options=options)
+#     driver.get(url)
+#     time.sleep(5) # wait for JavaScript to load
+#     source = driver.page_source
+#     soup = get_soup(source, True)
 
 def LowerName(name):
     return name.lower().replace("-", "").replace(" ", "").replace(".", "")
