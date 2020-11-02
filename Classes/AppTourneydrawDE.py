@@ -16,6 +16,26 @@ from GetFlagDE import GetFlagDE
 name_links = LoadJSON("data/NamesDE.json")
 static_name_links = {**LoadJSON("data/NamesDE_m.json"), **LoadJSON("data/NamesDE_f.json")}
 
+def GetNameCorrections():
+    # Loads corrections from Benutzer:Siebenschläferchen/Turnier-Generator
+    wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator", 'json')['query']['pages']['11514212']['revisions'][0]['*']
+    change = {}
+    for d in wikitext.split("\n* "):
+        if " → " in d and "[[" in d and "]]" in d and not "[[]]" in d:
+            d = d.replace("[", "").replace("]","").split(" → ")
+            name = d[1].replace("(t", "(T").replace(" (Tennisspieler)", "").replace(" (Tennisspieler)", "").replace(" (Tennisspielerin)", "")
+            key = LowerName(d[0])
+            if "(Tennis" in d[1]:
+                short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
+                long = d[1] + "|" + name
+            else:
+                short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
+                long = d[1]
+            change[key] = [long, short]
+    return change
+
+corrections = GetNameCorrections()
+
 def GetNameLink(name, country, mens):
     # Finds and returns formatted name and wikilinks for given name.
     name = HumanName(name)
@@ -24,39 +44,48 @@ def GetNameLink(name, country, mens):
 
     global name_links
     global static_links
+    global corrections
 
-    lower = name.strip().lower().replace("-", "").replace(" ", "").replace(".", "") # key for name in dict
+    lower = LowerName(name) # key for name in dict
     if lower in static_name_links:
-        return static_name_links[lower]
-
-    if lower in name_links:
-        return name_links[lower]
-    soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
-    wikitext = name
-    tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "ist der Name folgender Personen", "WTA", "ITF", "ATP"]
-    pipe = False
-    rus = False
-    disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
-    if soup != None:
-        if any([f in soup for f in tennis]): # player article exists, or no article exists
-            if "Weitergeleitet von" in soup:
-                soup = GetSoup(soup, True)
-                title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
-                if len(title.split(" ")) >= 3 and country == "RUS":
-                    name = title.split(" ")
-                    name = name[0] + " " + " ".join(name[2:])
-                    rus = True
-                wikitext = title
-                pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
-        else: # article exists for name but for different person
-            wikitext = name + disamb
-            pipe = True
-    wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
-    split_name = (name if rus else wikitext).replace(disamb , "").split(" ")
-    abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
-    abbr_wikilink = wikitext + "|" + abbr_name
-    name_links[lower] = [wikilink, abbr_wikilink]
-    return name_links[lower]
+        links = static_name_links[lower]
+    elif lower in name_links:
+        links = name_links[lower]
+    else:
+        soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
+        wikitext = name
+        tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "ist der Name folgender Personen", "WTA", "ITF", "ATP"]
+        pipe = False
+        rus = False
+        disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
+        if soup != None:
+            if any([f in soup for f in tennis]): # player article exists, or no article exists
+                if "Weitergeleitet von" in soup:
+                    soup = GetSoup(soup, True)
+                    title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
+                    if len(title.split(" ")) >= 3 and country == "RUS":
+                        name = title.split(" ")
+                        name = name[0] + " " + " ".join(name[2:])
+                        rus = True
+                    wikitext = title
+                    pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
+            else: # article exists for name but for different person
+                wikitext = name + disamb
+                pipe = True
+        wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
+        split_name = (name if rus else wikitext).replace(disamb , "").split(" ")
+        abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
+        abbr_wikilink = wikitext + "|" + abbr_name
+        name_links[lower] = [wikilink, abbr_wikilink]
+        links = name_links[lower]
+    if "|" in links[0]:
+        key = LowerName(links[0][:links[0].index("|")]).replace("ziel=", "")
+    else:
+        key = LowerName(links[0]).replace("ziel=", "")
+    if key in corrections: # name has correction
+        return corrections[key]
+    else:
+        return links
 
 class Page():
     def __init__(self):
