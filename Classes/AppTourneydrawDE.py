@@ -111,6 +111,8 @@ class Match():
         self.parsed = False # match has been checked for retirements, tiebreakers etc.
         self.teams = [[Player(f, date, mens) for f in match[0]], [Player(f, date, mens) for f in match[1]]]
         self.score = match[2]
+        if len(self.score) == 1:
+            self.score.append(["{{nowrap|SCORE MISSING}}", ""])
         for i in range((sets - len(match[2]) + 1)):
             self.score += [["",""]] # add empty sets to matches where the full number of sets wasn't needed
         self.winner = self.score[0][0]
