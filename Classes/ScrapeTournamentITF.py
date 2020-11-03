@@ -41,7 +41,7 @@ def ExtractScore(score, match, winners):
     # Walkovers = [[winner, ["w/o"]], ["Walkover"]]
     # Byes = [[winner, []], ["BYE"]]
     winner = 0 if match[0][0][0] in winners and match[0][0][0] != "BYE" else 1
-    score = score.text.strip(" |\n\r")
+    score = score.text.strip(" |\n\r").replace("\xa0", "")
     score = [s.split("-") for s in score.split(" ")]
 
     if match[0][0][0] == "BYE" or match[1][0][0] == "BYE":
@@ -55,10 +55,11 @@ def ExtractScore(score, match, winners):
             if set == ["Retired"]:
                 if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
                     new_score.append(['0', '0', "Retired"]) # retirement happened after set finished
+                elif (len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1) or (int(new_score[-1][0]) + int(new_score[-1][1]) == 13):
+                    new_score.append(['0', '0', "Retired"]) # retirement happened after tiebreak set finished
                 elif len(new_score[-1]) == 2:
                     new_score[-1] += set # retirement happened mid-set
-                elif len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1:
-                    new_score.append(['0', '0', "Retired"]) # retirement happened after tiebreak set finished
+
             elif set != [""]:
                 tiebreaker = re.search(r"\(\d{1,}\)", set[1])
                 if tiebreaker:

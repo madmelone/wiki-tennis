@@ -61,7 +61,12 @@ class Match():
     def __init__(self, match, sets, year):
         self.parsed = False # match has been checked for retirements, tiebreakers etc.
         self.teams = [[Player(f, year) for f in match[0]], [Player(f, year) for f in match[1]]]
-        self.score = match[2] + [["",""]] * (sets - len(match[2]) + 1) # add empty sets to matches where the full number of sets wasn't needed
+        self.score = match[2]
+        self.missing = False
+        if len(self.score) == 1:
+            self.score.append(["{{nowrap|SCORE MISSING}}", ""])
+            self.missing = True
+        self.score += [["",""]] * (sets - len(match[2]) + 1) # add empty sets to matches where the full number of sets wasn't needed
         self.winner = self.score[0][0]
         if self.score[0][1] == ["w/o"]:
             self.score[1] = ["", "w/o"] if self.winner else ["w/o", ""] # puts w/o on winner's side
@@ -106,7 +111,9 @@ class Tournament():
         seeds = {} # [team, round reached, final match retired/withdrew]
         for c, round in enumerate(t.data): # find and add all seeds and their results to seeds dict
             for match in round:
-                retiredwithdrew = "" if match.bye or str(match.score[0][1][-1]).isdigit() else match.score[0][1][-1]
+                retiredwithdrew = ""
+                if not match.missing:
+                    retiredwithdrew = "" if match.bye or str(match.score[0][1][-1]).isdigit() else match.score[0][1][-1]
                 for i in range(2):
                     seed = match.teams[i][0].seed
                     if seed != []:
