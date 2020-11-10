@@ -198,6 +198,7 @@ class Tournament():
             for match in data[j]:
                 p.text += [""]
                 retired = False
+                default = False
                 if not match.parsed: # add sup tags if not already added for retirements/tiebreakers
                     for c, set in enumerate(match.score[1:]):
                         if set[-1] == "Retired" and not retired:
@@ -209,6 +210,15 @@ class Tournament():
                             else:
                                 match.score[c+2][not match.score[0][0]] += "r"
                             retired = True
+                        if set[-1] == "Default" and not default:
+                            if set == ['0', '0', 'Default']:
+                                defaultee = match.score[0][0]
+                                match.score[c+1] = ["d" if defaultee else "", "" if defaultee else "d"]
+                            elif c + 1 == len(match.score[1:]):
+                                match.score[c+1][not match.score[0][0]] += "d"
+                            else:
+                                match.score[c+2][not match.score[0][0]] += "d"
+                            default = True
                         elif set != ["", ""] and "." not in set and len(set) == 3 and len(set[2]) == 2:
                             if set[0] == "6":
                                 match.score[c+1][0] = set[0] + "<sup>" + set[2][0] + "</sup>"

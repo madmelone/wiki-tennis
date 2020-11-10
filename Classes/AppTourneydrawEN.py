@@ -111,14 +111,14 @@ class Tournament():
         seeds = {} # [team, round reached, final match retired/withdrew]
         for c, round in enumerate(t.data): # find and add all seeds and their results to seeds dict
             for match in round:
-                retiredwithdrew = ""
+                retiredwithdrewdefaulted = ""
                 if not match.missing:
-                    retiredwithdrew = "" if match.bye or str(match.score[0][1][-1]).isdigit() else match.score[0][1][-1]
+                    retiredwithdrewdefaulted = "" if match.bye or str(match.score[0][1][-1]).isdigit() else match.score[0][1][-1]
                 for i in range(2):
                     seed = match.teams[i][0].seed
                     if seed != []:
                         if seed[0].isdigit():
-                            seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1), retiredwithdrew]
+                            seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1), retiredwithdrewdefaulted]
         def FindSection(sections, seed):
             # Finds section of draw containing given seed.
             for c, section in enumerate(sections):
@@ -140,9 +140,9 @@ class Tournament():
                 try: # create text for seed, formatting (bold/italics) depending on result
                     style = ("'''" if seeds[l][1] == t.rounds else "''")
                     reached = t.round_names[seeds[l][1]].replace("Round", "round").replace("Competition", "competition") # upper-case is used in draw templates but not seeds
-                    retiredwithdrew = ", retired" if seeds[l][2] == "r" else (", withdrew" if seeds[l][2] == "w/o" else "")
+                    retiredwithdrewdefaulted = ", retired" if seeds[l][2] == "r" else (", withdrew" if seeds[l][2] == "w/o" else (", defaulted" if seeds[l][2] == "d" else ""))
                     name_text = " / ".join([f.flag + " " + f.name_link[0] for f in seeds[l][0]])
-                    page += [number + (style if style == "'''" else "") + name_text + " " + (style if style == "''" else "") + "(" + reached + retiredwithdrew + ")" + style]
+                    page += [number + (style if style == "'''" else "") + name_text + " " + (style if style == "''" else "") + "(" + reached + retiredwithdrewdefaulted + ")" + style]
                 except KeyError: # seed not in draw, usually due to withdrawal
                     page += [number + "''(Withdrew)''"]
             page += ["}}"] + (["", "{{Seeds explanation}}"] if seed_links else [])
@@ -170,6 +170,8 @@ class Tournament():
                     for c, set in enumerate(match.score[1:]):
                         if set[-1] == "Retired":
                             match.score[c+1][not match.score[0][0]] += "<sup>r</sup>"
+                        elif set[-1] == "Default":
+                            match.score[c+1][not match.score[0][0]] += "<sup>d</sup>"
                         elif set != ["", ""] and "w/o" not in set and len(set) == 3 and len(set[2]) == 2:
                             match.score[c+1][0] = set[0] + "<sup>" + set[2][0] + "</sup>"
                             match.score[c+1][1] = set[1] + "<sup>" + set[2][1] + "</sup>"

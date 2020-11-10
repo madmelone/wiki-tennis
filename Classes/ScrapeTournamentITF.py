@@ -59,6 +59,13 @@ def ExtractScore(score, match, winners):
                     new_score.append(['0', '0', "Retired"]) # retirement happened after tiebreak set finished
                 elif len(new_score[-1]) == 2:
                     new_score[-1] += set # retirement happened mid-set
+            elif set == ["Default"]:
+                if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
+                    new_score.append(['0', '0', "Default"]) # default happened after set finished
+                elif (len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1) or (int(new_score[-1][0]) + int(new_score[-1][1]) == 13):
+                    new_score.append(['0', '0', "Default"]) # default happened after tiebreak set finished
+                elif len(new_score[-1]) == 2:
+                    new_score[-1] += set # default happened mid-set
 
             elif set != [""]:
                 tiebreaker = re.search(r"\(\d{1,}\)", set[1])
@@ -78,13 +85,20 @@ def ExtractScore(score, match, winners):
                         new_score[c+1] = f[:-1][::-1] + [f[-1]]
                     elif len(f) == 4: # tiebreak and retired
                         new_score[c+1] = f[:-2][::-1] + [f[-2][::-1]] + [f[-1]]
+                elif "Default" in f:
+                    if len(f) == 3:
+                        new_score[c+1] = f[:-1][::-1] + [f[-1]]
+                    elif len(f) == 4: # tiebreak and default
+                        new_score[c+1] = f[:-2][::-1] + [f[-2][::-1]] + [f[-1]]
                 elif len(f) == 3 and len(f[2]) == 2: # tiebreak
                     new_score[c+1] = f[:-1][::-1] + [f[-1][::-1]]
                 else:
                     f.reverse()
-        for set in new_score[1:]: # fill new_score[0][1] with winner of each set, "r" if team retires
+        for set in new_score[1:]: # fill new_score[0][1] with winner of each set, "r" if team retires, "d" if team defaulted
             if 'Retired' in set:
                 new_score[0][1].append("r")
+            elif 'Default' in set:
+                new_score[0][1].append("d")
             else:
                 new_score[0][1].append(int(int(set[0])<int(set[1])))
     return new_score
