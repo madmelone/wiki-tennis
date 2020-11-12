@@ -8,7 +8,7 @@ def GetFlagDE(nation, d):
 		d2 = datetime.date(1995, 6, 7)
 		d3 = datetime.date(2012, 2, 11)
 		if d < d1:
-			return "SUN-1980"
+			return "SUN"
 		elif d >= d1 and d < d2:
 			return "BLR-1991"
 		elif d >= d2 and d < d3:
@@ -37,11 +37,11 @@ def GetFlagDE(nation, d):
 		d1 = datetime.date(1992, 12, 31)
 		if d <= d1:
 			if nation == "CZE":
-				return "CZS"
+				return "CZK"
 			elif nation == "TCH":
-				return "CZS"
+				return "CZK"
 			elif nation == "SVK":
-				return "CZS"
+				return "CZK"
 		else:
 			if nation == "TCH":
 				return "CZE"
@@ -101,6 +101,8 @@ def GetFlagDE(nation, d):
 		d1 = datetime.date(1997, 7, 1)
 		if d.year >= 1959 and d < d1:
 			return "HKG-1959"
+		else:
+			return "CN-HK"
 	elif nation == "HUN":
 		if d.year >= 1957 and d.year < 1988:
 			return "HUN-1957"
@@ -167,7 +169,7 @@ def GetFlagDE(nation, d):
 		if d.year >= 1955 and d < d1:
 			return "SUN-1955"
 		elif d >= d1 and d < d2:
-			return "SUN-1980"
+			return "SUN"
 		elif d >= d2 and d < d3:
 			return "RUS-1991"
 		#"URS" return "LVA" // 1992 an bei Savchenko

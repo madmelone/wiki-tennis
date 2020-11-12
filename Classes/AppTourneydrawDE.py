@@ -104,7 +104,7 @@ class Player():
             self.playertext[0] = "{{nowrap|" + self.playertext[0] + "}}"
         if length1 > 10:
             self.playertext[1] = "{{nowrap|" + self.playertext[1] + "}}"
-        self.seed = [f.replace("Alt", "ALT") for f in player[2]]
+        self.seed = [f.replace("Alt", "ALT").replace("A", "ALT") for f in player[2]]
 
 class Match():
     def __init__(self, match, sets, date, mens):
@@ -232,7 +232,7 @@ class Tournament():
                     name_text = "<br />&amp;nbsp;".join([(bold + f.playertext[abbr] + bold if not match.bye else "") for f in team])
                     rd = "| RD" + str(j+1) + "-"
                     num = "0" + str(team_no) if team_no < 10 and (rounds > 3 or compact) else str(team_no)
-                    p.text += [rd + "seed" + num + "=" + ("" if match.bye else ("&amp;nbsp;" if team[0].seed == [] else "/".join(team[0].seed)))]
+                    p.text += [rd + "seed" + num + "=" + ("" if match.bye else ("&amp;nbsp;" if team[0].seed == [] else (team[0].seed[0] if len(team[0].seed) == 1 else "{{nowrap|" + team[0].seed[0] + " <small>" + team[0].seed[1] + "</small>}}")))]
                     p.text += [rd + "team" + num + "=" + (name_text if name_text != "<br />&amp;nbsp;" else "")]
 
                     for set in range(match.sets):
