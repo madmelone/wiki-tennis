@@ -132,7 +132,6 @@ def ExtractTournament(soup, qual, doubles):
 
         matches = [list([list(f) for f in tuple(zip(top, bottom))])] + matches # zip players into match
 
-        print (len(scores), scores)
         if len(scores) == 0: # tournament not finished, entire round not played
             for m in matches[0]:
                 m.append([[0, []], ["BYE"]])
