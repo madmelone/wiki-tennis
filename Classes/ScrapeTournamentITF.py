@@ -132,9 +132,14 @@ def ExtractTournament(soup, qual, doubles):
 
         matches = [list([list(f) for f in tuple(zip(top, bottom))])] + matches # zip players into match
 
-        for c, m in enumerate(matches[0]):
-            score = ExtractScore(scores[c], m, winners)
-            matches[0][c].append(score)
+        print (len(scores), scores)
+        if len(scores) == 0: # tournament not finished, entire round not played
+            for m in matches[0]:
+                m.append([[0, []], ["BYE"]])
+        else:
+            for c, m in enumerate(matches[0]):
+                score = ExtractScore(scores[c], m, winners)
+                matches[0][c].append(score)
 
         winners = [f[0][0] for f in top + bottom] # teams in round n are winners of round n-1 (next loop)
         # Scores for matches in previous round (next loop)

@@ -37,11 +37,11 @@ def GetFlagDE(nation, d):
 		d1 = datetime.date(1992, 12, 31)
 		if d <= d1:
 			if nation == "CZE":
-				return "CZK"
+				return "CSK"
 			elif nation == "TCH":
-				return "CZK"
+				return "CSK"
 			elif nation == "SVK":
-				return "CZK"
+				return "CSK"
 		else:
 			if nation == "TCH":
 				return "CZE"
@@ -242,4 +242,6 @@ def GetFlagDE(nation, d):
 		 return "GTM"
 	elif nation == "VIE":
 		 return "VNM"
+	elif nation == "NGR":
+		return "NGA"
 	return nation
