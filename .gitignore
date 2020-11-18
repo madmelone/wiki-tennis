@@ -8,3 +8,5 @@
 /Classes/_data/
 *NameLinks*
 *.log
+/Classes/data/NamesDE.json
+/Classes/data/NamesEN.json

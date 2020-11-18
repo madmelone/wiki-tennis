@@ -26,16 +26,16 @@ def GetNameLink(name):
         return name_links[lower]
     soup = GetSoup("https://en.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
     wikitext = name
-    tennis = ["International Tennis Federation", "Prize money", "Grand Slam", "tennis career", "Wikipedia does not have", "may refer to", "WTA", "ITF", "ATP"]
+    tennis = ["International Tennis Federation", "Prize money", "Grand Slam", "tennis career", "Wikipedia does not have", "WTA", "ITF", "ATP"]
     pipe = False
     if soup != None:
-        if any([f in soup for f in tennis]): # player article exists, or no article exists
+        if any([f in soup for f in tennis]) and not "may refer to" in soup: # player article exists, or no article exists
             if "Redirected from" in soup:
                 soup = GetSoup(soup, True)
                 title = str(soup.title.string).replace(" - Wikipedia", "").strip()
                 wikitext = title
                 pipe = True # if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
-        else: # article exists for name but for different person
+        else: # article exists for name but for different person, or disambugation page
             wikitext = name + " (tennis)"
             pipe = True
     wikilink = "[[" + wikitext + ("|" + name if pipe else "") + "]]"
