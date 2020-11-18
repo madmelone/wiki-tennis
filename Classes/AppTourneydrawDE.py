@@ -54,12 +54,12 @@ def GetNameLink(name, country, mens):
     else:
         soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
         wikitext = name
-        tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "ist der Name folgender Personen", "WTA", "ITF", "ATP"]
+        tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "WTA", "ITF", "ATP"]
         pipe = False
         rus = False
         disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
         if soup != None:
-            if any([f in soup for f in tennis]): # player article exists, or no article exists
+            if any([f in soup for f in tennis]) and not "Dies ist eine Begriffsklärungsseite zur Unterscheidung mehrerer mit demselben Wort bezeichneter Begriffe." in soup: # player article exists, or no article exists
                 if "Weitergeleitet von" in soup:
                     soup = GetSoup(soup, True)
                     title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
@@ -69,7 +69,7 @@ def GetNameLink(name, country, mens):
                         rus = True
                     wikitext = title
                     pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
-            else: # article exists for name but for different person
+            else: # article exists for name but for different person, or disambugation page
                 wikitext = name + disamb
                 pipe = True
         wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
