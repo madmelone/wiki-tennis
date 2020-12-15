@@ -196,7 +196,7 @@ class Tournament():
     def MakeDraw(t, p, compact, abbr, seed_links):
         if t.qual:
             t.MakeQualifiers(p)
-            t.MakeLuckyLosers(p)
+            # t.MakeLuckyLosers(p)
             p.text += ["", "==Qualifying draw==", "{{Draw key}}"]
             sections = t.SplitData(len(t.data[-1]), t.rounds)
             for i in range(len(sections)):
