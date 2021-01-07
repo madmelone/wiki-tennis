@@ -38,6 +38,8 @@ corrections = GetNameCorrections()
 
 def GetNameLink(name, country, mens):
     # Finds and returns formatted name and wikilinks for given name.
+    if name == "":
+        return ["", ""]
     name = HumanName(name)
     name.capitalize(force=True)
     name = str(name)

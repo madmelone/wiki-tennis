@@ -5,6 +5,7 @@
 
 import datetime
 import itertools
+import math
 import re
 
 from ClassSupportFunctions import GetSoup
@@ -163,6 +164,14 @@ def FixByes(soup):
     soup = GetSoup(html, True)
     return soup
 
+def AddMissingRounds(data):
+    base = [[['', '', []]], [['', '', []]], [[0, []], ["BYE"]]] # blank match
+    rounds = int(math.log(len(data[-1]), 2)) # missing rounds to add
+    while rounds > 0:
+        data.append([base] * (2 ** (rounds - 1)))
+        rounds -= 1
+    return data
+
 def ScrapeTournamentITF(url):
     soup = GetSoup(url, {})
     title = soup.title.string
@@ -182,4 +191,7 @@ def ScrapeTournamentITF(url):
     except IndexError: # html is missing name in tournament bracket
         soup = FixByes(soup)
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
+    if len(data[-1]) != 1:
+        data = AddMissingRounds(data) # add empty rounds to unfinished tournaments
+
     return data, qual, doubles, date
