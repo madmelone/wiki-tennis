@@ -30,7 +30,7 @@ def GetNameCorrections():
                 long = d[1] + "|" + name
             else:
                 short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
-                long = d[1]
+                long = "Ziel=" + d[1]
             change[key] = [long, short]
     return change
 
