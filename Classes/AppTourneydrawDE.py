@@ -30,7 +30,7 @@ def GetNameCorrections():
                 long = d[1] + "|" + name
             else:
                 short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
-                long = d[1]
+                long = "Ziel=" + d[1]
             change[key] = [long, short]
     return change
 
@@ -177,7 +177,7 @@ class Tournament():
                     reached = t.round_names[seeds[l][1]].replace("Erste ", "1. ").replace("Zweite ", "2. ").replace("Dritte ", "3. ").replace("Vierte ", "4. ")
                     page += ["| " + str(l) + "R = " + reached]
                 except KeyError:
-                    page += ["| " + str(l) + "A = \n| " + str(l) + "B = \n|" + str(l) + "R = Rückzug"]
+                    page += ["| " + str(l) + "A = \n| " + (str(l) + "B = \n| " if t.doubles else "") + str(l) + "R = Rückzug"]
             page += ["}}</onlyinclude>", "{{Tennisturnier Zeichenerklärung}}"]
             p.text = page + p.text
 
