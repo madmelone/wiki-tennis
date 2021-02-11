@@ -177,7 +177,7 @@ class Tournament():
                     reached = t.round_names[seeds[l][1]].replace("Erste ", "1. ").replace("Zweite ", "2. ").replace("Dritte ", "3. ").replace("Vierte ", "4. ")
                     page += ["| " + str(l) + "R = " + reached]
                 except KeyError:
-                    page += ["| " + str(l) + "A = \n| " + str(l) + "B = \n|" + str(l) + "R = Rückzug"]
+                    page += ["| " + str(l) + "A = \n| " + (str(l) + "B = \n| " if t.doubles else "") + str(l) + "R = Rückzug"]
             page += ["}}</onlyinclude>", "{{Tennisturnier Zeichenerklärung}}"]
             p.text = page + p.text
 
