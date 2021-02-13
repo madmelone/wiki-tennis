@@ -17,21 +17,28 @@ name_links = LoadJSON("data/NamesDE.json")
 static_name_links = {**LoadJSON("data/NamesDE_m.json"), **LoadJSON("data/NamesDE_f.json")}
 
 def GetNameCorrections():
-    # Loads corrections from Benutzer:Siebenschläferchen/Turnier-Generator
+    # Loads corrections from https://de.wikipedia.org/wiki/Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator
     wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator", 'json')['query']['pages']['11514212']['revisions'][0]['*']
     change = {}
     for d in wikitext.split("\n* "):
         if " → " in d and "[[" in d and "]]" in d and not "[[]]" in d:
             d = d.replace("[", "").replace("]","").split(" → ")
-            name = d[1].replace("(t", "(T").replace(" (Tennisspieler)", "").replace(" (Tennisspieler)", "").replace(" (Tennisspielerin)", "")
-            key = LowerName(d[0])
-            if "(Tennis" in d[1]:
-                short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
+            name = re.sub(r" \(.*\)", "", d[1])
+            key = LowerName(re.sub(r" \(.*\)", "", d[0]))
+            if name != d[1]: # name is disambiguated
                 long = d[1] + "|" + name
             else:
-                short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
                 long = "Ziel=" + d[1]
-            change[key] = [long, short]
+            long_rus = long
+            if len(name.split(" ")) >= 3:
+                rus = name.split(" ")
+                long_rus = d[1] + "|" + rus[0] + " " + " ".join(rus[2:])
+            short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
+            short_rus = short
+            if long_rus != long:
+                rus = long_rus.split("|")[1]
+                short_rus = d[1] + "|" + ".-".join(f[0] for f in rus.split(" ")[0].split("-")) + ". " + " ".join(rus.split(" ")[1:])
+            change[key] = [[long, short], [long_rus, short_rus]]
     return change
 
 corrections = GetNameCorrections()
@@ -56,12 +63,13 @@ def GetNameLink(name, country, mens):
     else:
         soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
         wikitext = name
-        tennis = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "WTA", "ITF", "ATP"]
+        player_page = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "WTA", "ITF", "ATP"]
+        disamb_page = ["Kategorie:Begriffsklärung", "Dies ist eine Begriffsklärungsseite zur Unterscheidung mehrerer mit demselben Wort bezeichneter Begriffe.", "ist der Name folgender Personen:"]
         pipe = False
         rus = False
         disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
         if soup != None:
-            if any([f in soup for f in tennis]) and not "Dies ist eine Begriffsklärungsseite zur Unterscheidung mehrerer mit demselben Wort bezeichneter Begriffe." in soup: # player article exists, or no article exists
+            if any([f in soup for f in player_page]) and not any([f in soup for f in disamb_page]): # player article exists, or no article exists
                 if "Weitergeleitet von" in soup:
                     soup = GetSoup(soup, True)
                     title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
@@ -85,7 +93,7 @@ def GetNameLink(name, country, mens):
     else:
         key = LowerName(links[0]).replace("ziel=", "")
     if key in corrections: # name has correction
-        return corrections[key]
+        return corrections[key][country == "RUS"]
     else:
         return links
 
@@ -168,7 +176,7 @@ class Tournament():
                             seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1)]
 
         if seeds != {}:
-            page += ["", ("== Einzel ==" if not t.doubles else "== Doppel =="), "=== Setzliste ===", "<onlyinclude>{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
+            page += ["", ("== Einzel ==" if not t.doubles else "== Doppel =="), "=== Setzliste ===", "{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
             for l in range(1, max(seeds) + 1):
                 letters = ["A", "B"]
                 try:
@@ -178,7 +186,7 @@ class Tournament():
                     page += ["| " + str(l) + "R = " + reached]
                 except KeyError:
                     page += ["| " + str(l) + "A = \n| " + (str(l) + "B = \n| " if t.doubles else "") + str(l) + "R = Rückzug"]
-            page += ["}}</onlyinclude>", "{{Tennisturnier Zeichenerklärung}}"]
+            page += ["}}", "{{Tennisturnier Zeichenerklärung}}"]
             p.text = page + p.text
 
     def MakeQualifiers(t, p):
