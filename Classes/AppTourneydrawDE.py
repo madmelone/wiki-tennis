@@ -24,7 +24,7 @@ def GetNameCorrections():
         if " → " in d and "[[" in d and "]]" in d and not "[[]]" in d:
             d = d.replace("[", "").replace("]","").split(" → ")
             name = re.sub(r" \(.*\)", "", d[1])
-            key = LowerName(re.sub(r" \(.*\)", "", d[0]))
+            key = LowerName(d[0])
             if name != d[1]: # name is disambiguated
                 long = d[1] + "|" + name
             else:
