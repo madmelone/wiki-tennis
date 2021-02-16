@@ -50,6 +50,7 @@ def GetNameLink(name, country, mens):
     name = HumanName(name)
     name.capitalize(force=True)
     name = str(name)
+    rus = any([f in country for f in ["RUS", "SUN", "URS", "UKR", "BLR"]])
 
     global name_links
     global static_links
@@ -66,17 +67,15 @@ def GetNameLink(name, country, mens):
         player_page = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "WTA", "ITF", "ATP"]
         disamb_page = ["Kategorie:Begriffsklärung", "Dies ist eine Begriffsklärungsseite zur Unterscheidung mehrerer mit demselben Wort bezeichneter Begriffe.", "ist der Name folgender Personen:"]
         pipe = False
-        rus = False
         disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
         if soup != None:
             if any([f in soup for f in player_page]) and not any([f in soup for f in disamb_page]): # player article exists, or no article exists
                 if "Weitergeleitet von" in soup:
                     soup = GetSoup(soup, True)
                     title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
-                    if len(title.split(" ")) >= 3 and country == "RUS":
+                    if len(title.split(" ")) >= 3 and rus:
                         name = title.split(" ")
                         name = name[0] + " " + " ".join(name[2:])
-                        rus = True
                     wikitext = title
                     pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
             else: # article exists for name but for different person, or disambugation page
@@ -93,7 +92,7 @@ def GetNameLink(name, country, mens):
     else:
         key = LowerName(links[0]).replace("ziel=", "")
     if key in corrections: # name has correction
-        return corrections[key][country == "RUS"]
+        return corrections[key][rus]
     else:
         return links
 
