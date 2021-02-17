@@ -50,49 +50,54 @@ def GetNameLink(name, country, mens):
     name = HumanName(name)
     name.capitalize(force=True)
     name = str(name)
-    rus = any([f in country for f in ["RUS", "SUN", "URS", "UKR", "BLR"]])
+    is_rus = any([f in country for f in ["RUS", "SUN", "URS", "UKR", "BLR"]]) # assume player uses Russian naming customs
 
     global name_links
     global static_links
     global corrections
 
-    lower = LowerName(name) # key for name in dict
-    if lower in static_name_links:
-        links = static_name_links[lower]
-    elif lower in name_links:
-        links = name_links[lower]
+    key = LowerName(name) # key for name in names dict
+    if key in static_name_links:
+        links = static_name_links[key]
+    elif key in name_links:
+        links = name_links[key]
     else:
         soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
-        wikitext = name
+        soup = "" if soup == None else soup
+        title = name # player's article's title
         player_page = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "WTA", "ITF", "ATP"]
         disamb_page = ["Kategorie:Begriffsklärung", "Dies ist eine Begriffsklärungsseite zur Unterscheidung mehrerer mit demselben Wort bezeichneter Begriffe.", "ist der Name folgender Personen:"]
-        pipe = False
         disamb = " (Tennisspieler)" if mens else " (Tennisspielerin)"
-        if soup != None:
-            if any([f in soup for f in player_page]) and not any([f in soup for f in disamb_page]): # player article exists, or no article exists
-                if "Weitergeleitet von" in soup:
-                    soup = GetSoup(soup, True)
-                    title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
-                    if len(title.split(" ")) >= 3 and rus:
-                        name = title.split(" ")
-                        name = name[0] + " " + " ".join(name[2:])
-                    wikitext = title
-                    pipe = False if not rus else True # If True, then if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
-            else: # article exists for name but for different person, or disambugation page
-                wikitext = name + disamb
-                pipe = True
-        wikilink = ("Ziel=" if not pipe else "") + wikitext + ("|" + name if pipe else "")
-        split_name = (name if rus else wikitext).replace(disamb , "").split(" ")
+        is_disamb = False
+        pipe = False # pipe [[title|name]] instead of [[title]].
+
+        if "Weitergeleitet von" in soup: # redirect page
+            soup = GetSoup(soup, True)
+            title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
+            # pipe = True # display English spelling/maiden name (e.g. "Margaret Court" instead of "Margaret Smith" before she married).
+
+        if len(title.split(" ")) >= 3 and is_rus: # russian name
+            name = title.split(" ")
+            name = name[0] + " " + " ".join(name[2:])
+            pipe = True
+
+        if (not any([f in soup for f in player_page]) or any([f in soup for f in disamb_page])) and soup != "": # article exists for name but for different person, or disamb page
+            is_disamb = True
+            pipe = True
+
+        wikilink = ("Ziel=" if not pipe else "") + title + (disamb if is_disamb else "") + ("|" + name if pipe else "")
+        split_name = (name if is_rus else title).split(" ")
         abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
-        abbr_wikilink = wikitext + "|" + abbr_name
-        name_links[lower] = [wikilink, abbr_wikilink]
-        links = name_links[lower]
+        abbr_wikilink = title + "|" + abbr_name
+        name_links[key] = [wikilink, abbr_wikilink]
+        links = name_links[key]
+
     if "|" in links[0]:
-        key = LowerName(links[0][:links[0].index("|")]).replace("ziel=", "")
+        corrections_key = LowerName(links[0][:links[0].index("|")]).replace("ziel=", "")
     else:
-        key = LowerName(links[0]).replace("ziel=", "")
-    if key in corrections: # name has correction
-        return corrections[key][rus]
+        corrections_key = LowerName(links[0]).replace("ziel=", "")
+    if corrections_key in corrections: # name has correction
+        return corrections[corrections_key][is_rus]
     else:
         return links
 
