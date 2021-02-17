@@ -50,7 +50,7 @@ def GetNameLink(name, country, mens):
     name = HumanName(name)
     name.capitalize(force=True)
     name = str(name)
-    is_rus = any([f in country for f in ["RUS", "SUN", "URS", "UKR", "BLR"]]) # assume player uses Russian naming customs
+    is_rus = any([f in country for f in ["RUS", "SUN", "URS"]]) # assume player uses Russian naming customs
 
     global name_links
     global static_links
@@ -88,7 +88,7 @@ def GetNameLink(name, country, mens):
         wikilink = ("Ziel=" if not pipe else "") + title + (disamb if is_disamb else "") + ("|" + name if pipe else "")
         split_name = (name if is_rus else title).split(" ")
         abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
-        abbr_wikilink = title + "|" + abbr_name
+        abbr_wikilink = title + (disamb if is_disamb else "") + "|" + abbr_name
         name_links[key] = [wikilink, abbr_wikilink]
         links = name_links[key]
 
@@ -107,18 +107,22 @@ class Page():
 
 class Player():
     def __init__(self, player, date, mens):
-        country = ""
         if player != None:
+            country = ""
             country = GetFlagDE(player[1], date)
-        name_link = GetNameLink(player[0], country, mens)
-        self.playertext = {0: "{{" + country + "|" + name_link[0] + "}}", 1: "{{" + country + "|" + name_link[1] + "}}", 2: "{{" + country + "|" + name_link[0] + "}}"}
-        length0 = len(name_link[0].split("|")[-1].replace("Ziel=", ""))
-        length1 = len(name_link[1].split("|")[-1])
-        if length0 > 10:
-            self.playertext[0] = "{{nowrap|" + self.playertext[0] + "}}"
-        if length1 > 10:
-            self.playertext[1] = "{{nowrap|" + self.playertext[1] + "}}"
-        self.seed = [f.replace("Alt", "ALT").replace("A", "ALT") for f in player[2]]
+            name_link = GetNameLink(player[0], country, mens)
+            self.playertext = {0: "{{" + country + "|" + name_link[0] + "}}", 1: "{{" + country + "|" + name_link[1] + "}}", 2: "{{" + country + "|" + name_link[0] + "}}"}
+            length0 = len(name_link[0].split("|")[-1].replace("Ziel=", ""))
+            length1 = len(name_link[1].split("|")[-1])
+            if length0 > 10:
+                self.playertext[0] = "{{nowrap|" + self.playertext[0] + "}}"
+            if length1 > 10:
+                self.playertext[1] = "{{nowrap|" + self.playertext[1] + "}}"
+            self.seed = [f.replace("Alt", "ALT").replace("A", "ALT") for f in player[2]]
+        else:
+            text = "{{nowrap|PLAYER MISSING}}"
+            self.playertext = {0: text, 1: text, 2: text}
+            self.seed = [""]
 
 class Match():
     def __init__(self, match, sets, date, mens):
@@ -134,6 +138,7 @@ class Match():
             self.score[1] = ["", "w."] if self.winner else ["w.", ""] # puts w/o on winner's side
             self.score[2] = ["", "o."] if self.winner else ["o.", ""]
         self.bye = ["BYE"] in self.score
+        self.missing_final = False # score is missing for final
         self.sets = sets
 
 class Tournament():
@@ -145,6 +150,8 @@ class Tournament():
         for c, round in enumerate(data):
             sets = 3 if format == 3 or (format == 35 and c < len(data) - 1) or (format == 355 and c < len(data) - 2) else 5 # doesn't handle sets formats like 5353.
             t.data.append([Match(match, sets, date, mens) for match in round])
+            if c == len(data) - 1 and t.data[-1][0].bye:
+                t.data[-1][0].missing_final = True
         t.rounds = len(t.data)
         t.format = format # number of sets in matches, 35 if final has 5 sets
         t.doubles = len(data[0][0][0]) == 2
@@ -177,7 +184,7 @@ class Tournament():
                     seed = match.teams[i][0].seed
                     if seed != []:
                         if seed[0].isdigit():
-                            seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner else c + 1)]
+                            seeds[int(seed[0])] = [match.teams[i], (c if i != match.winner or match.missing_final else c + 1)]
 
         if seeds != {}:
             page += ["", ("== Einzel ==" if not t.doubles else "== Doppel =="), "=== Setzliste ===", "{{Setzliste", "| Anzahl = " + str(max(seeds)), "| Modus = " + ("Doppel" if t.doubles else "Herreneinzel")]
