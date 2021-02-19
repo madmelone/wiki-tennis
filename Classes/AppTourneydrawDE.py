@@ -62,8 +62,8 @@ def GetNameLink(name, country, mens):
     elif key in name_links:
         links = name_links[key]
     else:
-        soup = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
-        soup = "" if soup == None else soup
+        page_text = GetSoup("https://de.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
+        page_text = "" if page_text == None else page_text
         title = name # player's article's title
         player_page = ["International Tennis Federation", "Preisgeld", "Grand Slam", "Tenniskarriere", "Diese Seite existiert nicht", "WTA", "ITF", "ATP"]
         disamb_page = ["Kategorie:Begriffsklärung", "Dies ist eine Begriffsklärungsseite zur Unterscheidung mehrerer mit demselben Wort bezeichneter Begriffe.", "ist der Name folgender Personen:"]
@@ -71,8 +71,8 @@ def GetNameLink(name, country, mens):
         is_disamb = False
         pipe = False # pipe [[title|name]] instead of [[title]].
 
-        if "Weitergeleitet von" in soup: # redirect page
-            soup = GetSoup(soup, True)
+        if "Weitergeleitet von" in page_text: # redirect page
+            soup = GetSoup(page_text, True)
             title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
             # pipe = True # display English spelling/maiden name (e.g. "Margaret Court" instead of "Margaret Smith" before she married).
 
@@ -81,7 +81,7 @@ def GetNameLink(name, country, mens):
             name = name[0] + " " + " ".join(name[2:])
             pipe = True
 
-        if (not any([f in soup for f in player_page]) or any([f in soup for f in disamb_page])) and soup != "": # article exists for name but for different person, or disamb page
+        if (not any([f in page_text for f in player_page]) or any([f in page_text for f in disamb_page])) and page_text != "": # article exists for name but for different person, or disamb page
             is_disamb = True
             pipe = True
 
