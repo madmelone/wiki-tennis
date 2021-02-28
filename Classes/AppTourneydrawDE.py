@@ -19,26 +19,34 @@ static_name_links = {**LoadJSON("data/NamesDE_m.json"), **LoadJSON("data/NamesDE
 def GetNameCorrections():
     # Loads corrections from https://de.wikipedia.org/wiki/Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator
     wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator", 'json')['query']['pages']['11514212']['revisions'][0]['*']
-    change = {}
+    change = [{}, {}] # {full name corrections}, {shortened name corrections}
+    shortened = False
     for d in wikitext.split("\n* "):
-        if " → " in d and "[[" in d and "]]" in d and not "[[]]" in d:
-            d = d.replace("[", "").replace("]","").split(" → ")
-            name = re.sub(r" \(.*\)", "", d[1])
-            key = LowerName(d[0])
-            if name != d[1]: # name is disambiguated
-                long = d[1] + "|" + name
-            else:
-                long = "Ziel=" + d[1]
-            long_rus = long
-            if len(name.split(" ")) >= 3:
-                rus = name.split(" ")
-                long_rus = d[1] + "|" + rus[0] + " " + " ".join(rus[2:])
-            short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
-            short_rus = short
-            if long_rus != long:
-                rus = long_rus.split("|")[1]
-                short_rus = d[1] + "|" + ".-".join(f[0] for f in rus.split(" ")[0].split("-")) + ". " + " ".join(rus.split(" ")[1:])
-            change[key] = [[long, short], [long_rus, short_rus]]
+        if "Shortened" in d:
+            shortened = True
+        if not shortened:
+            if " → " in d and "[[" in d and "]]" in d and not "[[]]" in d:
+                d = d.replace("[", "").replace("]","").split(" → ")
+                name = re.sub(r" \(.*\)", "", d[1])
+                key = LowerName(d[0])
+                if name != d[1]: # name is disambiguated
+                    long = d[1] + "|" + name
+                else:
+                    long = "Ziel=" + d[1]
+                long_rus = long
+                if len(name.split(" ")) >= 3:
+                    rus = name.split(" ")
+                    long_rus = d[1] + "|" + rus[0] + " " + " ".join(rus[2:])
+                short = d[1] + "|" + ".-".join(f[0] for f in name.split(" ")[0].split("-")) + ". " + " ".join(name.split(" ")[1:])
+                short_rus = short
+                if long_rus != long:
+                    rus = long_rus.split("|")[1]
+                    short_rus = d[1] + "|" + ".-".join(f[0] for f in rus.split(" ")[0].split("-")) + ". " + " ".join(rus.split(" ")[1:])
+                change[0][key] = [[long, short], [long_rus, short_rus]]
+        else:
+            if "<!--" not in d:
+                d = d.split(" → ")
+                change[1][d[0]] = d[1]
     return change
 
 corrections = GetNameCorrections()
@@ -76,7 +84,9 @@ def GetNameLink(name, country, mens):
             title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
             # pipe = True # display English spelling/maiden name (e.g. "Margaret Court" instead of "Margaret Smith" before she married).
 
-        if len(title.split(" ")) >= 3 and is_rus: # russian name
+        rus_patronym = len(title.split(" ")) >= 3 and is_rus
+
+        if rus_patronym: # russian name
             name = title.split(" ")
             name = name[0] + " " + " ".join(name[2:])
             pipe = True
@@ -86,7 +96,7 @@ def GetNameLink(name, country, mens):
             pipe = True
 
         wikilink = ("Ziel=" if not pipe else "") + title + (disamb if is_disamb else "") + ("|" + name if pipe else "")
-        split_name = (name if is_rus else title).split(" ")
+        split_name = (name if rus_patronym else title).split(" ")
         abbr_name = ".-".join(f[0] for f in split_name[0].split("-")) + ". " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
         abbr_wikilink = title + (disamb if is_disamb else "") + "|" + abbr_name
         name_links[key] = [wikilink, abbr_wikilink]
@@ -96,10 +106,12 @@ def GetNameLink(name, country, mens):
         corrections_key = LowerName(links[0][:links[0].index("|")]).replace("ziel=", "")
     else:
         corrections_key = LowerName(links[0]).replace("ziel=", "")
-    if corrections_key in corrections: # name has correction
-        return corrections[corrections_key][is_rus]
-    else:
-        return links
+    if corrections_key in corrections[0]: # name has correction
+         links = corrections[0][corrections_key][is_rus]
+    abbr = links[1][links[1].index("|") + 1:]
+    if abbr in corrections[1]:
+        links[1] = links[1][:links[1].index("|") + 1] + corrections[1][abbr]
+    return links
 
 class Page():
     def __init__(self):
