@@ -312,6 +312,8 @@ class Tournament():
         t.MakeSeeds(p, sections)
 
 def TournamentDrawOutputDE(data, date, format, mens, qual, compact, abbr):
+    global corrections
+    corrections = GetNameCorrections()
     p = Page()
     t = Tournament(data=data, mens=mens, format=format, qual=qual, date=date)
     t.MakeDraw(p, compact=compact, abbr=abbr)
