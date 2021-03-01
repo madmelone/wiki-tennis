@@ -44,7 +44,7 @@ def GetNameCorrections():
                     short_rus = d[1] + "|" + ".-".join(f[0] for f in rus.split(" ")[0].split("-")) + ". " + " ".join(rus.split(" ")[1:])
                 change[0][key] = [[long, short], [long_rus, short_rus]]
         else:
-            if "<!--" not in d:
+            if "<!--" not in d and d.strip("* →") != "":
                 d = d.split(" → ")
                 change[1][d[0]] = d[1]
     return change
@@ -103,11 +103,13 @@ def GetNameLink(name, country, mens):
         links = name_links[key]
 
     if "|" in links[0]:
-        corrections_key = LowerName(links[0][:links[0].index("|")]).replace("ziel=", "")
+        corrections_key = links[0][:links[0].index("|")]
     else:
-        corrections_key = LowerName(links[0]).replace("ziel=", "")
+        corrections_key = links[0]
+
+    corrections_key = LowerName(corrections_key).replace("ziel=", "")
     if corrections_key in corrections[0]: # name has correction
-         links = corrections[0][corrections_key][is_rus]
+        links = corrections[0][corrections_key][is_rus]
     abbr = links[1][links[1].index("|") + 1:]
     if abbr in corrections[1]:
         links[1] = links[1][:links[1].index("|") + 1] + corrections[1][abbr]
