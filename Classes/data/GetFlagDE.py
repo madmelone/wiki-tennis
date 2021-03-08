@@ -1,4 +1,8 @@
-## Derived from wikiTT 2.8.3.001 by German Wikipedia-User: Mac6 Mac6v2 Mac6v3
+"""
+Derived from:
+ 	wikiTT 2.8.3.001 by German Wikipedia-User: Mac6 Mac6v2 Mac6v3
+	https://de.wikipedia.org/wiki/Benutzer:Siebenschläferchen/Flaggen
+"""
 
 import datetime
 
@@ -6,7 +10,7 @@ def GetFlagDE(nation, d):
 	if nation == "BLR":
 		d1 = datetime.date(1991, 9, 19)
 		d2 = datetime.date(1995, 6, 7)
-		d3 = datetime.date(2012, 2, 11)
+		d3 = datetime.date(2012, 2, 10)
 		if d < d1:
 			return "SUN"
 		elif d >= d1 and d < d2:
@@ -31,11 +35,15 @@ def GetFlagDE(nation, d):
 			return "BGR-1967"
 		elif d.year >= 1971 and d < d1:
 			return "BGR-1971"
-		else:
-			return "BGR"
+		return "BGR"
+	elif nation == "CRO":
+		d1 = datetime.date(1990, 12, 22)
+		if d < d1:
+			return "YUG"
+		return "HRV"
 	elif nation == "CZE" or nation == "TCH" or nation == "SVK":
-		d1 = datetime.date(1992, 12, 31)
-		if d <= d1:
+		d1 = datetime.date(1993, 1, 1)
+		if d < d1:
 			if nation == "CZE":
 				return "CSK"
 			elif nation == "TCH":
@@ -54,6 +62,8 @@ def GetFlagDE(nation, d):
 			return "EGY-1972"
 	elif nation == "ESP":
 		d1 = datetime.date(1981, 12, 19)
+		if d.year >= 1938 and d.year < 1945:
+			return "ESP-1938"
 		if d.year >= 1945 and d.year < 1977:
 			return "ESP-1945"
 		elif d < d1:
@@ -82,8 +92,11 @@ def GetFlagDE(nation, d):
 			if d >= d6:
 				return "GDR"
 	elif nation == "GEO":
-		d1 = datetime.date(2004, 1, 26)
-		if d.year >= 1990 and d < d1:
+		d1 = datetime.date(1991, 9, 4)
+		d2 = datetime.date(2004, 1, 26)
+		if d < d1:
+			return "SUN-1980"
+		elif d >= d1 and d < d2:
 			return "GEO-1990"
 	elif nation == "GRE":
 		d1 = datetime.date(1970, 8, 18)
@@ -95,17 +108,24 @@ def GetFlagDE(nation, d):
 			return "GRC-1970"
 		elif d >= d2 and d < d3:
 			return "GRC-1975"
-		else:
-			return "GRC"
+		return "GRC"
 	elif nation == "HKG":
 		d1 = datetime.date(1997, 7, 1)
 		if d.year >= 1959 and d < d1:
 			return "HKG-1959"
-		else:
-			return "CN-HK"
+		return "CN-HK"
 	elif nation == "HUN":
 		if d.year >= 1957 and d.year < 1988:
 			return "HUN-1957"
+	elif nation == "IRN":
+		d1 = datetime.date(1980, 7, 29)
+		if d.year > 1964 and d < d1:
+			return "IRN-1964"
+	elif nation == "LAT":
+		d1 = datetime.date(1990, 2, 27)
+		if d < d1:
+			return "SUN-1980"
+		return "LVA"
 	elif nation == "PAR":
 		if d.year >= 1954 and d.year < 1988:
 			return "PRY-1954"
@@ -113,8 +133,7 @@ def GetFlagDE(nation, d):
 			return "PRY-1988"
 		elif d.year >= 1990 and d.year < 2013:
 			return "PRY-1990"
-		else:
-			return "PRY"
+		return "PRY"
 	elif nation == "PHI":
 		if d.year >= 1944 and d.year < 1981:
 			return "PHL-1944"
@@ -122,8 +141,7 @@ def GetFlagDE(nation, d):
 			return "PHL-1981"
 		elif d.year >= 1986 and d.year < 1990:
 			return "PHL-1986"
-		else:
-			return "PHL"
+		return "PHL"
 	elif nation == "ROU":
 		d1 = datetime.date(1952, 9, 25)
 		d2 = datetime.date(1965, 8, 22)
@@ -133,24 +151,48 @@ def GetFlagDE(nation, d):
 		elif d >= d2 and d < d3:
 			return "ROU-1965"
 	elif nation == "RSA":
-		d1 = datetime.date(1994, 4, 26)
+		d1 = datetime.date(1994, 4, 27)
 		if d.year >= 1928 and d.year < 1961:
 			return "ZAF-1928"
 		elif d.year >= 1961 and d < d1:
 			return "ZAF-1961"
-		else:
-			return "ZAF"
-	elif nation == "SRB":
-		d1 = datetime.date(2006, 6, 3)
-		d2 = datetime.date(2010, 11, 11)
-		if d >= d1 and d < d2:
-			return "SRB-2004"
+		return "ZAF"
 	elif nation == "SLO":
-		d1 = datetime.date(1992, 4, 27)
+		d1 = datetime.date(1991, 6, 27)
 		if d < d1:
 			return "YUG"
-		else:
-			return "SVN"
+		return "SVN"
+	elif nation == "SRB":
+		d1 = datetime.date(1992, 4, 27)
+		d2 = datetime.date(2003, 2, 4)
+		d3 = datetime.date(2006, 6, 3)
+		d4 = datetime.date(2010, 11, 11)
+		if d >= d1 and d < d2:
+			return "YUG-1992"
+		elif d >= d2 and d < d3:
+			return "SCG"
+		elif d >= d3 and d < d4:
+			return "SRB-2004"
+	elif nation == "UKR":
+		d1 = datetime.date(1991, 9, 4)
+		if d < d1:
+			return "SUN-1980"
+	elif nation == "URS" or nation == "RUS":
+		d1 = datetime.date(1980, 8, 15)
+		d2 = datetime.date(1991, 8, 22)
+		d3 = datetime.date(1993, 12, 11)
+		if d.year >= 1955 and d < d1:
+			return "SUN-1955"
+		elif d >= d1 and d < d2:
+			return "SUN"
+		elif d >= d2 and d < d3:
+			return "RUS-1991"
+		#"URS" return "LVA" // 1992 an bei Savchenko
+		#"URS" return "EUN" "GEO" return "EUN" "BLR" return "EUN" // Vereintes Team
+	elif nation == "VEN":
+		d1 = datetime.date(2006, 3, 12)
+		if d.year > 1954 and d < d1:
+			return "VEN-1954"
 	elif nation == "YUG":
 		d1 = datetime.date(1946, 1, 31)
 		d2 = datetime.date(1992, 4, 27)
@@ -162,86 +204,66 @@ def GetFlagDE(nation, d):
 			return "YUG-1992"
 		elif d >= d3 and d < d4:
 			return "SCG"
-	elif nation == "URS" or nation == "RUS":
-		d1 = datetime.date(1980, 8, 15)
-		d2 = datetime.date(1991, 12, 4)
-		d3 = datetime.date(1993, 12, 11)
-		if d.year >= 1955 and d < d1:
-			return "SUN-1955"
-		elif d >= d1 and d < d2:
-			return "SUN"
-		elif d >= d2 and d < d3:
-			return "RUS-1991"
-		#"URS" return "LVA" // 1992 an bei Savchenko
-		#"URS" return "UKR"
-		#"URS" return "EUN" "GEO" return "EUN" "BLR" return "EUN" // Vereintes Team
-	elif nation == "VEN":
-		if d.year >= 1954 and d.year < 2006:
-			return "VEN-1954"
 	elif nation == "NED":
-		 return "NLD"
+		return "NLD"
 	elif nation == "URU":
-		 return "URY"
+		return "URY"
 	elif nation == "SUI":
-		 return "CHE"
+		return "CHE"
 	elif nation == "ZIM":
-		 return "ZWE"
+		return "ZWE"
 	elif nation == "DEN":
-		 return "DNK"
+		return "DNK"
 	elif nation == "OMA":
-		 return "OMN"
+		return "OMN"
 	elif nation == "CIS":
-		 return "GUS"
-	elif nation == "CRO":
-		 return "HRV"
-	elif nation == "LAT":
-		 return "LVA"
+		return "GUS"
 	elif nation == "INA":
-		 return "IDN"
+		return "IDN"
 	elif nation == "POR":
-		 return "PRT"
+		return "PRT"
 	elif nation == "CHI":
-		 return "CHL"
+		return "CHL"
 	elif nation == "MAD":
-		 return "MDG"
+		return "MDG"
 	elif nation == "CRC":
-		 return "CRI"
+		return "CRI"
 	elif nation == "PUR":
-		 return "US-PR"
+		return "US-PR"
 	elif nation == "BAH":
-		 return "BHS"
+		return "BHS"
 	elif nation == "ALG":
-		 return "DZA"
+		return "DZA"
 	elif nation == "CAM":
-		 return "KHM"
+		return "KHM"
 	elif nation == "UAE":
-		 return "ARE"
+		return "ARE"
 	elif nation == "LIB":
-		 return "LBN"
+		return "LBN"
 	elif nation == "TOG":
-		 return "TGO"
+		return "TGO"
 	elif nation == "AHO":
-		 return "ANT"
+		return "ANT"
 	elif nation == "TWN":
-		 return "TPE"
+		return "TPE"
 	elif nation == "ESA":
-		 return "SLV"
+		return "SLV"
 	elif nation == "KUW":
-		 return "KWT"
+		return "KWT"
 	elif nation == "BAR":
-		 return "BRB"
+		return "BRB"
 	elif nation == "ANG":
-		 return "AGO"
+		return "AGO"
 	elif nation == "HAI":
-		 return "HTI"
+		return "HTI"
 	elif nation == "MON":
-		 return "MCO"
+		return "MCO"
 	elif nation == "MAS":
-		 return "MYS"
+		return "MYS"
 	elif nation == "GUA":
-		 return "GTM"
+		return "GTM"
 	elif nation == "VIE":
-		 return "VNM"
+		return "VNM"
 	elif nation == "NGR":
 		return "NGA"
 	return nation
