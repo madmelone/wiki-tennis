@@ -43,7 +43,7 @@ def GetNameCorrections():
                     rus = long_rus.split("|")[1]
                     short_rus = d[1] + "|" + ".-".join(f[0] for f in rus.split(" ")[0].split("-")) + ". " + " ".join(rus.split(" ")[1:])
                 change[0][key] = [[long, short], [long_rus, short_rus]]
-        else:
+        else: # shortened name correction
             if "<!--" not in d and d.strip("* →") != "":
                 d = d.split(" → ")
                 change[1][d[0]] = d[1]
@@ -55,9 +55,16 @@ def GetNameLink(name, country, mens):
     # Finds and returns formatted name and wikilinks for given name.
     if name == "":
         return ["", ""]
-    name = HumanName(name)
-    name.capitalize(force=True)
-    name = str(name)
+    name = name.replace(". ", ".").replace(".", ". ")
+    split_name = name.split(" ")
+    mixed_case = [f for f in split_name if (not f.islower() and not f.isupper()) or f.islower()]
+    surname_index = 0
+    if mixed_case != []:
+        surname_index = split_name.index(mixed_case[-1]) + 1
+    first_names = " ".join(split_name[:surname_index])
+    surname = HumanName(" ".join(split_name[surname_index:]))
+    surname.capitalize(force=True)
+    name = (first_names + " " + str(surname)).strip()
     is_rus = any([f in country for f in ["RUS", "SUN", "URS"]]) # assume player uses Russian naming customs
 
     global name_links
@@ -110,7 +117,7 @@ def GetNameLink(name, country, mens):
     corrections_key = LowerName(corrections_key).replace("ziel=", "")
     if corrections_key in corrections[0]: # name has correction
         links = corrections[0][corrections_key][is_rus]
-    abbr = links[1][links[1].index("|") + 1:]
+    abbr = links[1][links[1].index("|") + 1:] if "|" in links[1] else links[1]
     if abbr in corrections[1]:
         links[1] = links[1][:links[1].index("|") + 1] + corrections[1][abbr]
     return links
