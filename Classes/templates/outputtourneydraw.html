@@ -6,7 +6,10 @@
         <h2>Tournament draw</h2>
     </div>
     <div>
-      Draw:
+      {{ names | safe }}
+    </div>
+    <div>
+      <h5>Draw wikitext:</h5>
     </div>
     <div>
         <button onclick="copy_to_clipboard('Wikicode');">Copy Wikicode</button>

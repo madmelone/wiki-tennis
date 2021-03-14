@@ -36,7 +36,7 @@ def GetNameLink(name):
                 soup = GetSoup(soup, True)
                 title = str(soup.title.string).replace(" - Wikipedia", "").strip()
                 wikitext = title
-                pipe = True # if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
+                pipe = False # if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
         else: # article exists for name but for different person, or disambugation page
             wikitext = name + " (tennis)"
             pipe = True
@@ -226,4 +226,4 @@ def TournamentDrawOutputEN(data, date, format, qual, compact, abbr, seed_links):
     p = Page()
     t = Tournament(data=data, format=format, qual=qual, year=date.year)
     t.MakeDraw(p, compact=compact, abbr=abbr, seed_links=seed_links)
-    return "\n".join(p.text)
+    return "", "\n".join(p.text)

@@ -1,7 +1,7 @@
 """
 Derived from:
- 	wikiTT 2.8.3.001 by German Wikipedia-User: Mac6 Mac6v2 Mac6v3
-	https://de.wikipedia.org/wiki/Benutzer:Siebenschläferchen/Flaggen
+ 	wikiTT 2.8.3.001 by German-Wikipedia User: Mac6 Mac6v2 Mac6v3
+	https://de.wikipedia.org/wiki/Benutzer:Siebenschläferchen/Flaggen by German-Wikipedia User: Siebenschläferchen
 """
 
 import datetime

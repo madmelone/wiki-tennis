@@ -13,8 +13,10 @@ sys.path.append('data')
 from ClassSupportFunctions import *
 from GetFlagDE import GetFlagDE
 
-name_links = LoadJSON("data/NamesDE.json")
-static_name_links = {**LoadJSON("data/NamesDE_m.json"), **LoadJSON("data/NamesDE_f.json")}
+name_links = {}
+static_name_links = {}
+new_names = ""
+corrections = []
 
 def GetNameCorrections():
     # Loads corrections from https://de.wikipedia.org/wiki/Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator
@@ -49,12 +51,11 @@ def GetNameCorrections():
                 change[1][d[0]] = d[1]
     return change
 
-corrections = GetNameCorrections()
-
 def GetNameLink(name, country, mens):
     # Finds and returns formatted name and wikilinks for given name.
     if name == "":
         return ["", ""]
+    old_name = name
     name = name.replace(". ", ".").replace(".", ". ")
     split_name = name.split(" ")
     mixed_case = [f for f in split_name if (not f.islower() and not f.isupper()) or f.islower()]
@@ -70,6 +71,7 @@ def GetNameLink(name, country, mens):
     global name_links
     global static_links
     global corrections
+    global new_names
 
     key = LowerName(name) # key for name in names dict
     if key in static_name_links:
@@ -86,9 +88,14 @@ def GetNameLink(name, country, mens):
         is_disamb = False
         pipe = False # pipe [[title|name]] instead of [[title]].
 
-        if "Weitergeleitet von" in page_text: # redirect page
+        if "Weitergeleitet von" in page_text: # redirected
             soup = GetSoup(page_text, True)
             title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
+            if "Tennisspieler" in title: # redirected to disambiguated page
+                is_disamb = True
+                pipe = True
+                title = re.sub(r" \(.*\)", "", title)
+                name = title
             # pipe = True # display English spelling/maiden name (e.g. "Margaret Court" instead of "Margaret Smith" before she married).
 
         rus_patronym = len(title.split(" ")) >= 3 and is_rus
@@ -98,7 +105,7 @@ def GetNameLink(name, country, mens):
             name = name[0] + " " + " ".join(name[2:])
             pipe = True
 
-        if (not any([f in page_text for f in player_page]) or any([f in page_text for f in disamb_page])) and page_text != "": # article exists for name but for different person, or disamb page
+        if (not any([f in page_text for f in player_page]) or any([f in page_text for f in disamb_page]) and page_text != ""): # article exists for name but for different person, or disamb page
             is_disamb = True
             pipe = True
 
@@ -108,6 +115,11 @@ def GetNameLink(name, country, mens):
         abbr_wikilink = title + (disamb if is_disamb else "") + "|" + abbr_name
         name_links[key] = [wikilink, abbr_wikilink]
         links = name_links[key]
+
+        # add entry to new names list
+        exists = "Diese Seite existiert nicht" not in page_text
+        link = f'<a href="https://de.wikipedia.org/wiki/{title}{disamb}" style="color:{"blue" if exists else "red"};">{title}{disamb}</a>'
+        new_names += f"\t<li>{old_name} → [[{abbr_wikilink.replace(title + disamb, link)}]]</li>"
 
     if "|" in links[0]:
         corrections_key = links[0][:links[0].index("|")]
@@ -132,10 +144,11 @@ class Player():
             country = ""
             country = GetFlagDE(player[1], date)
             name_link = GetNameLink(player[0], country, mens)
+            # 0: full name, 1: shortened name, 2: full name without nowrap (for seeds)
             self.playertext = {0: "{{" + country + "|" + name_link[0] + "}}", 1: "{{" + country + "|" + name_link[1] + "}}", 2: "{{" + country + "|" + name_link[0] + "}}"}
             length0 = len(name_link[0].split("|")[-1].replace("Ziel=", ""))
             length1 = len(name_link[1].split("|")[-1])
-            if length0 > 10:
+            if length0 > 10: # need to prevent name wrapping in draw bracket
                 self.playertext[0] = "{{nowrap|" + self.playertext[0] + "}}"
             if length1 > 10:
                 self.playertext[1] = "{{nowrap|" + self.playertext[1] + "}}"
@@ -318,10 +331,22 @@ class Tournament():
                 t.MakeSection(p, data=section, rounds=section_rounds, round_names=t.round_names[:section_rounds], format=(3 if t.format > 5 else t.format), byes=t.byes, compact=compact, abbr=abbr)
         t.MakeSeeds(p, sections)
 
-def TournamentDrawOutputDE(data, date, format, mens, qual, compact, abbr):
+def initialize():
+    global name_links
+    global static_name_links
     global corrections
+    global new_names
+    name_links = LoadJSON("data/NamesDE.json")
+    static_name_links = {**LoadJSON("data/NamesDE_m.json"), **LoadJSON("data/NamesDE_f.json")}
     corrections = GetNameCorrections()
+    new_names = "<h5>New names encountered:</h5>\n<ul>"
+
+def TournamentDrawOutputDE(data, date, format, mens, qual, compact, abbr):
+    initialize()
+    global new_names
+    empty_names = new_names
     p = Page()
     t = Tournament(data=data, mens=mens, format=format, qual=qual, date=date)
     t.MakeDraw(p, compact=compact, abbr=abbr)
-    return "\n".join(p.text)
+    names = "" if new_names == empty_names else f"{new_names}</ul>"
+    return [names, "\n".join(p.text)]
