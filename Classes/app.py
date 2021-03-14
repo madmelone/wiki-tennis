@@ -98,29 +98,31 @@ def outputtourneydraw():
     compact = request.args.get('compact', type = int)
     abbr = request.args.get('abbr', type = int)
     seed_links = request.args.get('seed_links', type = int)
+
+    error = False
+    message = ""
     # Rudimentary input validation
-    if url.startswith("https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"):
-        error = False
-        message = ""
+    if org == 'itf' and not url.startswith("https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"):
+        error = True
+        output = "Invalid URL: should be a printable draw in format: https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?..."
+    else:
         try:
             # Scrape data, then create draw
             data, qual, doubles, date = ScrapeTournamentITF(url=url)
             if language == "en":
-                output = TournamentDrawOutputEN(data=data, date=date, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
+                names, output = TournamentDrawOutputEN(data=data, date=date, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
             elif language == "de":
-                output = TournamentDrawOutputDE(data=data, date=date, format=format, mens=gender, qual=qual, compact=compact, abbr=abbr)
+                names, output = TournamentDrawOutputDE(data=data, date=date, format=format, mens=gender, qual=qual, compact=compact, abbr=abbr)
         except Exception:
             message = str(traceback.format_exc())
             error = True
+            names = ""
             output = 'The program has encountered an error. Please go back and check that all inputs are correct. If the error persists, please contact <a href="https://en.wikipedia.org/wiki/User_talk:Somnifuguist">Somnifuguist</a> with the offending url:<br><a href="' + url + '">' + url + '</a></br>'
         timestamp = "[" + str(datetime.now())[:-7] + "] "
         log = timestamp + ("PASS: " if not error else "FAIL: ") + "lang=" + language + ", format=" + str(format) + ", compact=" + str(compact) + ", abbr=" + str(abbr) + ", seed_links=" + str(seed_links) +", url=" + url + (", message=\n" + message if message != "" else "")  + '\n'
         with open('tourneydraw.log','a') as f:
             f.write(log)
-    else:
-        error = True
-        output = "Invalid URL: should be a printable draw in format: https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?..."
-    return render_template('outputtourneydraw' + ('error' if error else '') + '.html', result=output)
+    return render_template('outputtourneydraw' + ('error' if error else '') + '.html', result=output, names=names)
 
 if __name__ == '__main__':
     app.run(debug=True)
