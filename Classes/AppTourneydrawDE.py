@@ -118,6 +118,7 @@ def GetNameLink(name, country, mens):
 
         # add entry to new names list
         exists = "Diese Seite existiert nicht" not in page_text
+        disamb = disamb if is_disamb else ""
         link = f'<a href="https://de.wikipedia.org/wiki/{title}{disamb}" style="color:{"blue" if exists else "red"};">{title}{disamb}</a>'
         new_names += f"\t<li>{old_name} → [[{abbr_wikilink.replace(title + disamb, link)}]]</li>"
 
