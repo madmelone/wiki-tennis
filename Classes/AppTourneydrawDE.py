@@ -91,7 +91,7 @@ def GetNameLink(name, country, mens):
         if "Weitergeleitet von" in page_text: # redirected
             soup = GetSoup(page_text, True)
             title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
-            if "Tennisspieler" in title: # redirected to disambiguated page
+            if "Tennisspieler" in title or any([f in page_text for f in disamb_page]): # redirected to disambiguated page, or disamb page
                 is_disamb = True
                 pipe = True
                 title = re.sub(r" \(.*\)", "", title)
