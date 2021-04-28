@@ -1,24 +1,119 @@
 {
-"1": ["2018 US Open - Men's Singles", "retirements", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100043981&tenniscatecode=MT&eventid=1100356810"],
-"2": ["1970 Australian Open - Men's Singles", "byes, walkovers", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004404&tenniscatecode=MT&eventid=1010010135"],
-"3": ["2019 US Open - Men's Singles missing seeds", "withdrawing seeds", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100046604&tenniscatecode=MT&eventid=1100389250"],
-"4": ["1968 French Open - Men's Singles", "8 rounds", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004434&tenniscatecode=MT&eventid=1010010188"],
-"5": ["2018 Cincinnati Masters - Men's Singles", "6 rounds", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100043628&tenniscatecode=MT&eventid=1100354221"],
-"6": ["2020 Adelaide International - Men's Singles", "5 rounds", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100181097&tenniscatecode=MT&eventid=1100409741"],
-"7": ["2010 US Open - Men's Singles Qualifying", "qualifying", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100022822&tenniscatecode=MT&eventid=1100128869"],
-"8": ["1982 Australian Open - Men's Singles Qualifying", "qualifying with byes", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004415&tenniscatecode=MT&eventid=1010010151"],
-"9": ["2019 US Open - Women's Doubles", "doubles", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100179904&tenniscatecode=WT&eventid=1100390842"],
-"10": ["1981 French Open - Women's Doubles", "byes, walkovers", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1020000105&tenniscatecode=WT&eventid=1020001894"],
-"11": ["2018 Wimbledon Championships - Men's Doubles Qualifying", "qualifying", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100043549&tenniscatecode=MT&eventid=1100353468"],
-"12": ["1974 Wimbledon Championships - Men's Singles Qualifying", "35 format", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004472&tenniscatecode=MT&eventid=1010010249"],
-"13": ["1972 French Open - Women's Singles Double", "byes", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1020000096&tenniscatecode=WT&eventid=1020000150"],
-"14": ["1982 French Open - Mixed Doubles", "355 format", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004448&tenniscatecode=MT&eventid=1100040855"],
-"15": ["1974 Wimbledon Championships - Men's Singles Qualifying", "missing byes", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004472&tenniscatecode=MT&eventid=1010010249"],
-"16": ["1998 Obserstaufen Challenger- Men's Singles", "retirement first game", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000783&tenniscatecode=MT&eventid=1010012713"],
-"17": ["1997 Wismar Challenger - Men's Doubles", "missing score; tiebreak without point scores and retirement", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010001178&tenniscatecode=MT&eventid=1010013371"],
-"18": ["2006 Freudenstadt Challenger- Men's Singles", "tiebreak and retirement", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100014354&tenniscatecode=MT&eventid=1100081822"],
-"19": ["2020 US Open - Men's Singles", "seeded default", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100182843&tenniscatecode=MT&eventid=1100428826"],
-"20": ["1989 Martinique Challenger - Men's Doubles", "missing final","https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000668&tenniscatecode=MT&eventid=1010012523"],
-"21": ["1997 Bristol Challenger - Men's Doubles", "missing semifinal and final", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000216&tenniscatecode=MT&eventid=1010011779"],
-"22": ["1998 Hong Kong Challenger - Men's Doubles", "missing doubles partners", "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000503&tenniscatecode=MT&eventid=1010012252"]
+    "tests": [
+        [
+            "2018 US Open - Men's Singles",
+            "retirements",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100043981&tenniscatecode=MT&eventid=1100356810"
+        ],
+        [
+            "1970 Australian Open - Men's Singles",
+            "byes, walkovers",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004404&tenniscatecode=MT&eventid=1010010135"
+        ],
+        [
+            "2019 US Open - Men's Singles missing seeds",
+            "withdrawing seeds",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100046604&tenniscatecode=MT&eventid=1100389250"
+        ],
+        [
+            "1968 French Open - Men's Singles",
+            "8 rounds",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004434&tenniscatecode=MT&eventid=1010010188"
+        ],
+        [
+            "2018 Cincinnati Masters - Men's Singles",
+            "6 rounds",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100043628&tenniscatecode=MT&eventid=1100354221"
+        ],
+        [
+            "2020 Adelaide International - Men's Singles",
+            "5 rounds",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100181097&tenniscatecode=MT&eventid=1100409741"
+        ],
+        [
+            "2010 US Open - Men's Singles Qualifying",
+            "qualifying",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100022822&tenniscatecode=MT&eventid=1100128869"
+        ],
+        [
+            "1982 Australian Open - Men's Singles Qualifying",
+            "qualifying with byes",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004415&tenniscatecode=MT&eventid=1010010151"
+        ],
+        [
+            "2019 US Open - Women's Doubles",
+            "doubles",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100179904&tenniscatecode=WT&eventid=1100390842"
+        ],
+        [
+            "1981 French Open - Women's Doubles",
+            "byes, walkovers",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1020000105&tenniscatecode=WT&eventid=1020001894"
+        ],
+        [
+            "2018 Wimbledon Championships - Men's Doubles Qualifying",
+            "qualifying",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100043549&tenniscatecode=MT&eventid=1100353468"
+        ],
+        [
+            "1974 Wimbledon Championships - Men's Singles Qualifying",
+            "35 format",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004472&tenniscatecode=MT&eventid=1010010249"
+        ],
+        [
+            "1972 French Open - Women's Singles Double",
+            "byes",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1020000096&tenniscatecode=WT&eventid=1020000150"
+        ],
+        [
+            "1982 French Open - Mixed Doubles",
+            "355 format",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004448&tenniscatecode=MT&eventid=1100040855"
+        ],
+        [
+            "1974 Wimbledon Championships - Men's Singles Qualifying",
+            "missing byes",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010004472&tenniscatecode=MT&eventid=1010010249"
+        ],
+        [
+            "1998 Obserstaufen Challenger- Men's Singles",
+            "retirement first game",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000783&tenniscatecode=MT&eventid=1010012713"
+        ],
+        [
+            "1997 Wismar Challenger - Men's Doubles",
+            "missing score; tiebreak without point scores and retirement",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010001178&tenniscatecode=MT&eventid=1010013371"
+        ],
+        [
+            "2006 Freudenstadt Challenger- Men's Singles",
+            "tiebreak and retirement",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100014354&tenniscatecode=MT&eventid=1100081822"
+        ],
+        [
+            "2020 US Open - Men's Singles",
+            "seeded default",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100182843&tenniscatecode=MT&eventid=1100428826"
+        ],
+        [
+            "1989 Martinique Challenger - Men's Doubles",
+            "missing final",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000668&tenniscatecode=MT&eventid=1010012523"
+        ],
+        [
+            "1997 Bristol Challenger - Men's Doubles",
+            "missing semifinal and final",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000216&tenniscatecode=MT&eventid=1010011779"
+        ],
+        [
+            "1998 Hong Kong Challenger - Men's Doubles",
+            "missing doubles partners",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1010000503&tenniscatecode=MT&eventid=1010012252"
+        ],
+        [
+            "2004 Andrezjeux Challenger - Men's Doubles",
+            "retirement with no score",
+            "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?tournamentid=1100009805&tenniscatecode=MT&eventid=1100055787"
+        ]
+    ]
 }
