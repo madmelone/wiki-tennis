@@ -54,12 +54,15 @@ def ExtractScore(score, match, winners):
         for set in score:
             set = [f.replace("[", "").replace("]", "") for f in set]
             if set == ["Retired"]:
-                if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
-                    new_score.append(['0', '0', "Retired"]) # retirement happened after set finished
-                elif (len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1) or (int(new_score[-1][0]) + int(new_score[-1][1]) == 13):
-                    new_score.append(['0', '0', "Retired"]) # retirement happened after tiebreak set finished
-                elif len(new_score[-1]) == 2:
-                    new_score[-1] += set # retirement happened mid-set
+                if len(new_score) == 1:
+                    new_score.append(['0', '0', "Retired"]) # retirement happened before first game of match finished
+                else:
+                    if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
+                        new_score.append(['0', '0', "Retired"]) # retirement happened after set finished
+                    elif (len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1) or (int(new_score[-1][0]) + int(new_score[-1][1]) == 13):
+                        new_score.append(['0', '0', "Retired"]) # retirement happened after tiebreak set finished
+                    elif len(new_score[-1]) == 2:
+                        new_score[-1] += set # retirement happened mid-set
             elif set == ["Default"]:
                 if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
                     new_score.append(['0', '0', "Default"]) # default happened after set finished
