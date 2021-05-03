@@ -26,11 +26,11 @@ def ExtractTeam(team):
             digit = re.search(r"\[\d{1,2}\]", player)
             if digit:
                 seed.append(digit.group()[1:-1])
-            types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A", "SE", "ITF", ]
+            types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A", "SE", "ITF"]
             for t in types:
-                if re.search(r"\(" + t + "\)", player):
+                if "(" + t + ")" in player:
                     seed.append(t)
-            name = (player.replace("(" + country + ")", "").replace("(" + (seed[-1] if seed != [] else "") + ")", "").replace("[" + (seed[0] if seed != [] else "")  + "]", "").strip(" ").replace(",", ""))
+            name = (player.replace("(" + country + ")", "").replace("(" + (seed[-1] if seed != [] else "") + ")", "").replace("()", "").replace("[" + (seed[0] if seed != [] else "")  + "]", "").strip(" ").replace(",", ""))
             team_data.append([name, country, seed])
     return team_data
 
