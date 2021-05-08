@@ -169,6 +169,7 @@ def FixByes(soup):
 
 def AddMissingRounds(data):
     base = [[['', '', []]], [['', '', []]], [[0, []], ["BYE"]]] # blank match
+    data = [f for f in data if f != []]
     rounds = int(math.log(len(data[-1]), 2)) # missing rounds to add
     while rounds > 0:
         data.append([base] * (2 ** (rounds - 1)))
