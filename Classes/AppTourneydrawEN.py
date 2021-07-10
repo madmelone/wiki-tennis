@@ -15,37 +15,106 @@ from GetFlagEN import GetFlagEN
 
 name_links = {}
 
+# new_names = ""
+corrections = []
+
+def GetNameCorrections():
+    # Loads corrections from https://en.wikipedia.org/wiki/User:Somnifuguist/NameCorrections
+    wikitext = GetSoup("https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=User:Somnifuguist/NameCorrections", 'json')['query']['pages']['68204305']['revisions'][0]['*']
+    change = [{}, {}] # {full name corrections}, {shortened name corrections}
+    # {full name corrections}[player] = [full name link, shortened name link]
+    shortened = False
+    for d in wikitext.split("\n* "):
+        if "Shortened" in d:
+            shortened = True
+        if not shortened:
+            if not any([f not in d for f in [" → ", "[[", "]]"]]) and "[[]]" not in d:
+                d = [f.strip() for f in d.replace("[", "").replace("]", "").split(" → ")]
+                name = re.sub(r" \(.*\)", "", d[1])
+                key = LowerName(d[0])
+                if name != d[1]: # name is disambiguated
+                    long = d[1] + "|" + name
+                else:
+                    long = "[[" + d[1] + "]]"
+                short = "[[" + d[1] + "|" + "-".join(f[0] for f in name.split(" ")[0].split("-")) + " " + " ".join(name.split(" ")[1:]) + "]]"
+                change[0][key] = [long, short]
+        else: # shortened name correction
+            if "<!--" not in d and d.strip("* →") != "":
+                d = [f.strip() for f in d.split(" → ")]
+                change[1][d[0]] = d[1]
+    return change
+
 def GetNameLink(name):
     # Finds and returns formatted name and wikilinks for given name.
     if name == "":
         return ["", ""]
-    name = HumanName(name)
-    name.capitalize(force=True)
-    name = str(name)
-    global name_links
-    lower = name.strip().lower().replace("-", "").replace(" ", "").replace(".", "") # key for name in dict
-    if lower in name_links:
-        return name_links[lower]
-    soup = GetSoup("https://en.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
-    wikitext = name
-    tennis = ["International Tennis Federation", "Prize money", "Grand Slam", "tennis career", "Wikipedia does not have", "WTA", "ITF", "ATP"]
-    pipe = False
-    if soup != None:
-        if any([f in soup for f in tennis]) and not "may refer to" in soup: # player article exists, or no article exists
-            if "Redirected from" in soup:
-                soup = GetSoup(soup, True)
-                title = str(soup.title.string).replace(" - Wikipedia", "").strip()
-                wikitext = title
-                pipe = False # if name is redirect, pipes wikilink to avoid anachronist names, e.g. using "Margaret Court" instead of "Margaret Smith" before she married.
-        else: # article exists for name but for different person, or disambugation page
-            wikitext = name + " (tennis)"
-            pipe = True
-    wikilink = "[[" + wikitext + ("|" + name if pipe else "") + "]]"
+    # old_name = name
+    name = name.replace(". ", ".").replace(".", ". ")
     split_name = name.split(" ")
-    abbr_name = "-".join(f[0] for f in split_name[0].split("-")) + " " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J-L Struff"
-    abbr_wikilink = "[[" + wikitext + "|" + abbr_name + "]]"
-    name_links[lower] = [wikilink, abbr_wikilink]
-    return name_links[lower]
+    mixed_case = [f for f in split_name if (not f.islower() and not f.isupper()) or f.islower()]
+    surname_index = 0
+    if mixed_case != []:
+        surname_index = split_name.index(mixed_case[-1]) + 1
+    first_names = " ".join(split_name[:surname_index])
+    surname = HumanName(" ".join(split_name[surname_index:]))
+    surname.capitalize(force=True)
+    name = (first_names + " " + str(surname)).strip()
+
+    global name_links
+    global corrections
+    global new_names
+
+    key = LowerName(name) # key for name in names dict
+    if key in name_links:
+        links = name_links[key]
+    else:
+        page_text = GetSoup("https://en.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
+        page_text = "" if page_text == None else page_text
+        title = name # player's article's title
+        player_page = ["International Tennis Federation", "Prize money", "Grand Slam", "tennis career", "Wikipedia does not have", "WTA", "ITF", "ATP"]
+        disamb_page = ["may refer to"]
+        disamb = " (tennis)"
+        is_disamb = False
+        pipe = False # pipe [[title|name]] instead of [[title]].
+        if "Redirected from" in page_text: # redirected
+            soup = GetSoup(page_text, True)
+            title = str(soup.title.string).replace(" - Wikipedia", "").replace(" – Wikipedia", "").strip()
+            if "tennis" in title or any([f in page_text for f in disamb_page]): # redirected to disambiguated page, or disamb page
+                is_disamb = True
+                pipe = True
+                title = re.sub(r" \(.*\)", "", title)
+                name = title
+            # pipe = True # display English spelling/maiden name (e.g. "Margaret Court" instead of "Margaret Smith" before she married).
+
+        if (not any([f in page_text for f in player_page]) or any([f in page_text for f in disamb_page]) and page_text != ""): # article exists for name but for different person, or disamb page
+            is_disamb = True
+            pipe = True
+
+        wikilink = "[[" + title + (disamb if is_disamb else "") + ("|" + name if pipe else "") + "]]"
+        split_name = title.split(" ")
+        abbr_name = "-".join(f[0] for f in split_name[0].split("-")) + " " + " ".join(split_name[1:]) # reduce name to first name initials + last name, e.g. "J.-L. Struff"
+        abbr_wikilink = "[[" + title + (disamb if is_disamb else "") + "|" + abbr_name + "]]"
+        name_links[key] = [wikilink, abbr_wikilink]
+        links = name_links[key]
+
+        # # add entry to new names list
+        # exists = "Diese Seite existiert nicht" not in page_text
+        # disamb = disamb if is_disamb else ""
+        # link = f'<a href="https://en.wikipedia.org/wiki/{title}{disamb}" style="color:{"blue" if exists else "red"};">{title}{disamb}</a>'
+        # new_names += f"\t<li>{old_name} → [[{abbr_wikilink.replace(title + disamb, link)}]]</li>"
+
+    if "|" in links[0]:
+        corrections_key = links[0][:links[0].index("|")]
+    else:
+        corrections_key = links[0]
+    corrections_key = LowerName(corrections_key).strip("[]")
+    if corrections_key in corrections[0]: # name has correction
+        links = corrections[0][corrections_key]
+    abbr = links[1][links[1].index("|") + 1:] if "|" in links[1] else links[1]
+    abbr = abbr.strip("[]")
+    if abbr in corrections[1]:
+        links[1] = links[1][:links[1].index("|") + 1] + corrections[1][abbr] + "]]"
+    return links
 
 class Page():
     def __init__(self):
@@ -222,8 +291,20 @@ class Tournament():
                 t.MakeSection(p, data=section, rounds=4, round_names=t.round_names[:4], format=(3 if t.format > 5 else t.format), byes=t.byes, compact=compact, short_names=abbr)
         t.MakeSeeds(p, sections, seed_links)
 
+def initialize():
+    global name_links
+    global corrections
+    global new_names
+    name_links = LoadJSON("data/NamesEN.json")
+    corrections = GetNameCorrections()
+    # new_names = "<h5>New names encountered:</h5>\n<ul>"
+
 def TournamentDrawOutputEN(data, date, format, qual, compact, abbr, seed_links):
+    initialize()
+    # global new_names
+    # empty_names = new_names
     p = Page()
     t = Tournament(data=data, format=format, qual=qual, year=date.year)
     t.MakeDraw(p, compact=compact, abbr=abbr, seed_links=seed_links)
+    # names = "" if new_names == empty_names else f"{new_names}</ul>"
     return "", "\n".join(p.text)

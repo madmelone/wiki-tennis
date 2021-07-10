@@ -21,14 +21,15 @@ corrections = []
 def GetNameCorrections():
     # Loads corrections from https://de.wikipedia.org/wiki/Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator
     wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator", 'json')['query']['pages']['11514212']['revisions'][0]['*']
-    change = [{}, {}] # {full name corrections}, {shortened name corrections}
+    change = [{}, {}] # {full name corrections}, {shortened name corrections};
+    # {full name corrections}[player] = [[full link, shortened link], [full link for Russian, shortened link for Russian]]; Russian links are only used by GetNameLink() if player is Russian
     shortened = False
     for d in wikitext.split("\n* "):
         if "Shortened" in d:
             shortened = True
         if not shortened:
             if " → " in d and "[[" in d and "]]" in d and not "[[]]" in d:
-                d = d.replace("[", "").replace("]","").split(" → ")
+                d = [f.strip() for f in d.replace("[", "").replace("]","").split(" → ")]
                 name = re.sub(r" \(.*\)", "", d[1])
                 key = LowerName(d[0])
                 if name != d[1]: # name is disambiguated
@@ -47,7 +48,7 @@ def GetNameCorrections():
                 change[0][key] = [[long, short], [long_rus, short_rus]]
         else: # shortened name correction
             if "<!--" not in d and d.strip("* →") != "":
-                d = d.split(" → ")
+                d = [f.strip() for f in d.split(" → ")]
                 change[1][d[0]] = d[1]
     return change
 
