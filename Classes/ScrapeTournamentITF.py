@@ -195,7 +195,7 @@ def ScrapeTournamentITF(url):
     except IndexError: # html is missing name in tournament bracket
         soup = FixByes(soup)
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
-    if len(data[-1]) != 1:
+    if len(data[-1]) != 1 and not qual:
         data = AddMissingRounds(data) # add empty rounds to unfinished tournaments
 
     return data, qual, doubles, date
