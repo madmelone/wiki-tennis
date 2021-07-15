@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired
-
+from wtforms.widgets import TextArea
 
 class FormPlayerWorldranking(FlaskForm):
     org = SelectField('Ranking Organisation', choices=[('atp', 'ATP'), ('wta', 'WTA')])
@@ -32,4 +32,9 @@ class FormTournamentdraw(FlaskForm):
     compact = SelectField('Compact draws', choices=[(1, 'yes'), (0, 'no')])
     abbr = SelectField('Abbreviated names (e.g. R. Federer)', choices=[(1, 'yes'), (0, 'no')])
     seed_links = SelectField('Seed links (enwiki)', choices=[(1, 'yes'), (0, 'no')])
+    submit = SubmitField('Request')
+
+class FormMisc(FlaskForm):
+    script = SelectField('Script', choices=[('reverse', 'Table order reverser')])
+    input = StringField('Input', widget=TextArea(), validators=[DataRequired()])
     submit = SubmitField('Request')

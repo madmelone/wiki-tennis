@@ -8,7 +8,8 @@ from AppPlayerWorldranking import GetWorldRanking, RankingOutput
 from AppTourneydrawEN import TournamentDrawOutputEN
 from AppTourneydrawDE import TournamentDrawOutputDE
 from ScrapeTournamentITF import ScrapeTournamentITF
-from forms import FormPlayerWorldranking, FormPlayerTournamentwins, FormTournamentdraw
+from AppMisc import GetMisc
+from forms import *
 
 #Initiate Flask with config
 app = Flask(__name__)
@@ -60,6 +61,15 @@ def tourneydraw():
         seed_links = request.form.get('seed_links')
         return redirect(url_for('outputtourneydraw', language=language, org=org, url=url, gender=gender, format=format, compact=compact, abbr=abbr, seed_links=seed_links))
     return render_template('tourneydraw.html', form=form)
+
+@app.route('/misc/', methods=['GET', 'POST'])
+def misc():
+    form = FormMisc()
+    if request.method == 'POST':
+        script = request.form.get('script')
+        input = request.form.get('input')
+        return redirect(url_for('outputmisc', script=script, input=input))
+    return render_template('misc.html', form=form)
 
 @app.route('/outputranking/', methods=['GET', 'POST'])
 def outputranking():
@@ -123,6 +133,14 @@ def outputtourneydraw():
         with open('tourneydraw.log','a') as f:
             f.write(log)
     return render_template('outputtourneydraw' + ('error' if error else '') + '.html', result=output, names=names)
+
+@app.route('/outputmisc/', methods=['GET', 'POST'])
+def outputmisc():
+    #Get variables from form
+    script = request.args.get('script', type = str)
+    input = request.args.get('input', type = str)
+    output = GetMisc(script=script, input=input)
+    return render_template('outputmisc.html', result=output)
 
 if __name__ == '__main__':
     app.run(debug=True)
