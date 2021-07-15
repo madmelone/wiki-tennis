@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% set active_page = "misc" %}
+
+{% block content %}
+    <div class="home">
+        <h2>Misc</h2>
+    </div>
+    <div>
+      {{ names | safe }}
+    </div>
+    <div>
+      <h5>Output:</h5>
+    </div>
+    <div>
+        <button onclick="copy_to_clipboard('Wikicode');">Copy Wikicode</button>
+    </div>
+    <textarea cols="50" rows="10" id="Wikicode">{{ result | safe }}</textarea>
+
+{% endblock %}
