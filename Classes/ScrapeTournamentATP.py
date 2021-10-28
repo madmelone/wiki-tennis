@@ -392,19 +392,19 @@ def ScrapeTournamentATP(url, data):
     if url == None:
         soup = GetSoup(data, True)
     else:
-        files = os.listdir("data/TournamentsATP")
-        id = re.search("_(\d+)_(\d+)_(draws|results)\?matchtype=(qualifier)*(singles|doubles)", url.replace("/", "_").lower())
-        if id != None:
-            id = list(id.groups())
-            id = f"{id[0]}_{id[1]}_{id[4]}_{id[3]}".lower()
-        for f in files:
-            data = LoadJSON(f"data/TournamentsATP/" + f)
-            if str(id) in data:
-                return data[id]
         # soup, driver = GetSoupSelenium(url, None)
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'}
         soup = GetSoup(url, headers)
         if "Attention Required!" in str(soup):
+            files = os.listdir("data/TournamentsATP")
+            id = re.search("_(\d+)_(\d+)_(draws|results)\?matchtype=(qualifier)*(singles|doubles)", url.replace("/", "_").lower())
+            if id != None:
+                id = list(id.groups())
+                id = f"{id[0]}_{id[1]}_{id[4]}_{id[3]}".lower()
+            for f in files:
+                data = LoadJSON(f"data/TournamentsATP/" + f)
+                if str(id) in data:
+                    return data[id]
             return None, None, None, None, None, None
 
     unavailable = soup.find('h3', {'class':'not-found-404'})
