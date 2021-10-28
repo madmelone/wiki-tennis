@@ -117,13 +117,16 @@ def outputtourneydraw():
     # Rudimentary input validation
     itfurl = "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"
     atpurl = "https://www.atptour.com/en/scores/"
-    atpurl2 = "https://www.atptour.com/scores/archive/"
+    atpurl2 = "https://www.atptour.com/scores/"
     if org == 'itf' and not url.startswith(itfurl):
         error = True
-        output = "Invalid URL: should be a printable draw in format: " + itfurl + "...."
-    elif org != 'itf' and not (url.startswith(atpurl) or url.startswith(atpurl2)):
+        output = "Invalid URL: should be a printable draw in format: '" + itfurl + "'...."
+    elif org != 'itf' and "https://www.atptour.com/" not in url:
         error = True
-        output = "Invalid URL: should be a printable draw in format: " + atpurl + "...."
+        output = "Invalid URL: should contain: 'atptour.com/scores/...'"
+    elif org != 'itf' and "https://web.archive.org/" not in url:
+        error = True
+        output = "Invalid URL: should be an archived page with URL format 'https://web.archive.org/...'. Use the <a href=\"https://addons.mozilla.org/en-US/firefox/addon/wayback-machine_new/\">Wayback Machine Firefox extension</a> to quickly find/save an archived version of a page."
     else:
         try:
             # Scrape data, then create draw

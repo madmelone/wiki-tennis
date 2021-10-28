@@ -390,7 +390,9 @@ def ScrapeTournamentATP(url, data):
     format = None
 
     if url != None:
-        soup, driver = GetSoupSelenium(url, None)
+        # soup, driver = GetSoupSelenium(url, None)
+        soup = GetSoup(url, None)
+        print (soup)
     else:
         soup = GetSoup(data, True)
 

@@ -3,9 +3,9 @@ import json
 import requests
 import time
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from webdriver_manager.firefox import GeckoDriverManager
+# from selenium import webdriver
+# from selenium.webdriver.firefox.options import Options as FirefoxOptions
+# from webdriver_manager.firefox import GeckoDriverManager
 
 os.environ['WDM_LOG_LEVEL'] = '0' # silence webdriver_manager output
 
@@ -68,6 +68,12 @@ def GetSoupSelenium(url, driver):
     source = driver.page_source
     soup = GetSoup(source, True)
     return soup, driver
+
+def GetSoupWayback(url):
+    soup = GetSoup("http://web.archive.org/save/" + url, None)
+    soup = GetSoup("https://web.archive.org/web/2030/" + url, None)
+    print ("https://web.archive.org/web/2030/" + url)
+    return soup
 
 def LowerName(name):
     return name.lower().replace("-", "").replace(" ", "").replace(".", "")
