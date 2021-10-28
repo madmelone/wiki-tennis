@@ -123,10 +123,7 @@ def outputtourneydraw():
         output = "Invalid URL: should be a printable draw in format: '" + itfurl + "'...."
     elif org != 'itf' and "https://www.atptour.com/" not in url:
         error = True
-        output = "Invalid URL: should contain: 'atptour.com/scores/...'"
-    elif org != 'itf' and "https://web.archive.org/" not in url:
-        error = True
-        output = "Invalid URL: should be an archived page with URL format 'https://web.archive.org/...'. Use the <a href=\"https://addons.mozilla.org/en-US/firefox/addon/wayback-machine_new/\">Wayback Machine Firefox extension</a> to quickly find/save an archived version of a page."
+        output = "Invalid URL: should contain: 'https://www.atptour.com/scores/...'"
     else:
         try:
             # Scrape data, then create draw
@@ -135,10 +132,15 @@ def outputtourneydraw():
             else:
                 data, format2, qual, doubles, date, errors = ScrapeTournamentATP(url=url, data=None)
                 format = format if format2 == None else format2
-            if language == "en":
-                names, output = TournamentDrawOutputEN(data=data, date=date, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
-            elif language == "de":
-                names, output = TournamentDrawOutputDE(data=data, date=date, format=format, mens=gender, qual=qual, compact=compact, abbr=abbr)
+                if isinstance(date, str):
+                    date = datetime.strptime(date, "%Y-%m-%d").date()
+            if org != "itf" and data == None:
+                output = "Draw not in saved database and couldn't be scraped. Try again with an archived version saved in the Wayback Machine (URL format 'https://web.archive.org/...'). Use the <a href=\"https://addons.mozilla.org/en-US/firefox/addon/wayback-machine_new/\">Wayback Machine Firefox extension</a> to quickly find/save an archived version of a page. There is no guarantee this will work."
+            else:
+                if language == "en":
+                    names, output = TournamentDrawOutputEN(data=data, date=date, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
+                elif language == "de":
+                    names, output = TournamentDrawOutputDE(data=data, date=date, format=format, mens=gender, qual=qual, compact=compact, abbr=abbr)
         except Exception:
             message = str(traceback.format_exc())
             error = True

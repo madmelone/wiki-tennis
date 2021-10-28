@@ -21,9 +21,9 @@ corrections = []
 def GetNameCorrections():
     # Loads corrections from https://de.wikipedia.org/wiki/Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator
     change = [{}, {}] # {full name corrections}, {shortened name corrections};
-    page = "Benutzer:Siebenschläferchen/Turnier-Generator"
+    page = "Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator"
     try:
-        wikitext = GetSoup("https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=" + page, 'json')['query']['pages']['68204305']['revisions'][0]['*']
+        wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=" + page, 'json')['query']['pages']['68204305']['revisions'][0]['*']
     except:
         return change
 
