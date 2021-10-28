@@ -1,5 +1,5 @@
 # Name:     Tournament draw generator (enwiki)
-# Author:   Somnifuguist (w.wiki/fDy)
+# Author:   Somnifuguist
 # Date:     10-10-2020
 # Content:  Generates wikitext for tennis tournament draws
 
@@ -97,7 +97,6 @@ def GetNameLink(name):
     if key in name_links:
         links = name_links[key]
     else:
-        print ("\t", key)
         page_text = GetSoup("https://en.wikipedia.org/wiki/" + name.replace(" ", "_"), False).text
         page_text = "" if page_text == None else page_text
         title = name # player's article's title
@@ -166,7 +165,6 @@ class Player():
 
 class Match():
     def __init__(self, match, sets, year):
-        # print (match)
         self.parsed = False # match has been checked for retirements, tiebreakers etc.
         self.teams = [[Player(f, year) for f in match[0]], [Player(f, year) for f in match[1]]]
         self.score = match[2]

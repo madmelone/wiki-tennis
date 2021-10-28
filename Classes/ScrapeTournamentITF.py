@@ -1,5 +1,5 @@
 # Name:     ITF Tournament scraper
-# Author:   Somnifuguist (w.wiki/fDy)
+# Author:   Somnifuguist
 # Date:     10-10-2020
 # Content:  Scrapes data from ITF printable draws
 
@@ -206,7 +206,5 @@ def ScrapeTournamentITF(url):
         data = ExtractTournament(soup, qual=qual, doubles=doubles)
     if len(data[-1]) != 1 and not qual:
         data = AddMissingRounds(data) # add empty rounds to unfinished tournaments
-
-    print (data)
 
     return data, qual, doubles, date

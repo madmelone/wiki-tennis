@@ -1,3 +1,8 @@
+# Name:     ATP Tournament scraper
+# Author:   Somnifuguist
+# Date:     29-10-2021
+# Content:  Scrapes data from ATP draws
+
 import copy
 import datetime
 import hashlib

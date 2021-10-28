@@ -1,5 +1,5 @@
 # Name:     Tournament draw generator (dewiki)
-# Author:   Somnifuguist (w.wiki/fDy)
+# Author:   Somnifuguist
 # Date:     10-10-2020
 # Content:  Generates wikitext for tennis tournament draws
 

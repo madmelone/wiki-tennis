@@ -5,6 +5,9 @@ import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from webdriver_manager.firefox import GeckoDriverManager
+
+os.environ['WDM_LOG_LEVEL'] = '0' # silence webdriver_manager output
 
 def GetCountrycode(filepath):
     filename = os.path.basename(filepath)
@@ -57,7 +60,7 @@ def GetSoupSelenium(url, driver):
     if driver == None:
         options = FirefoxOptions()
         options.add_argument("--headless")
-        driver = webdriver.Firefox(options=options)
+        driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
         profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36")
     driver.get(url)
