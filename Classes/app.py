@@ -7,6 +7,7 @@ from AppPlayerTourneywins import TournamentWinsOutput, GetTournamentWins
 from AppPlayerWorldranking import GetWorldRanking, RankingOutput
 from AppTourneydrawEN import TournamentDrawOutputEN
 from AppTourneydrawDE import TournamentDrawOutputDE
+from ScrapeTournamentATP import ScrapeTournamentATP
 from ScrapeTournamentITF import ScrapeTournamentITF
 from AppMisc import GetMisc
 from forms import *
@@ -109,17 +110,28 @@ def outputtourneydraw():
     compact = request.args.get('compact', type = int)
     abbr = request.args.get('abbr', type = int)
     seed_links = request.args.get('seed_links', type = int)
-
+    errors = ""
     error = False
     message = ""
+    names = []
     # Rudimentary input validation
-    if org == 'itf' and not url.startswith("https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"):
+    itfurl = "https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?"
+    atpurl = "https://www.atptour.com/en/scores/"
+    atpurl2 = "https://www.atptour.com/scores/archive/"
+    if org == 'itf' and not url.startswith(itfurl):
         error = True
-        output = "Invalid URL: should be a printable draw in format: https://event.itftennis.com/itf/web/usercontrols/tournaments/tournamentprintabledrawsheets.aspx?..."
+        output = "Invalid URL: should be a printable draw in format: " + itfurl + "...."
+    elif org != 'itf' and not (url.startswith(atpurl) or url.startswith(atpurl2)):
+        error = True
+        output = "Invalid URL: should be a printable draw in format: " + atpurl + "...."
     else:
         try:
             # Scrape data, then create draw
-            data, qual, doubles, date = ScrapeTournamentITF(url=url)
+            if org == "itf":
+                data, qual, doubles, date = ScrapeTournamentITF(url=url)
+            else:
+                data, format2, qual, doubles, date, errors = ScrapeTournamentATP(url=url, data=None)
+                format = format if format2 == None else format2
             if language == "en":
                 names, output = TournamentDrawOutputEN(data=data, date=date, format=format, qual=qual, compact=compact, abbr=abbr, seed_links=seed_links)
             elif language == "de":
@@ -128,7 +140,8 @@ def outputtourneydraw():
             message = str(traceback.format_exc())
             error = True
             names = ""
-            output = 'The program has encountered an error. Please go back and check that all inputs are correct. If the error persists, please contact <a href="https://en.wikipedia.org/wiki/User_talk:Somnifuguist">Somnifuguist</a> with the offending url:<br><a href="' + url + '">' + url + '</a></br>'
+            output = 'The program has encountered an error. Please go back and check that all inputs are correct. If the error persists, <s>please contact <a href="https://en.wikipedia.org/wiki/User_talk:Somnifuguist">Somnifuguist</a></s> see if you can find the same draw on the other site.'
+        output = errors + output
         timestamp = "[" + str(datetime.now())[:-7] + "] "
         log = timestamp + ("PASS: " if not error else "FAIL: ") + "lang=" + language + ", format=" + str(format) + ", compact=" + str(compact) + ", abbr=" + str(abbr) + ", seed_links=" + str(seed_links) +", url=" + url + (", message=\n" + message if message != "" else "")  + '\n'
         with open('tourneydraw.log','a') as f:

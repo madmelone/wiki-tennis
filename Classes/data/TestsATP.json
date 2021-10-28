@@ -1,0 +1,143 @@
+{
+    "tests": [
+        [
+            "https://www.atptour.com/scores/archive/ahmedabad/593/1997/draws?matchtype=doubles",
+						"missing 1st round match"
+				],
+						"https://www.atptour.com/scores/archive/adelaide/7308/1975/draws?matchtype=singles",
+						"missing 2nd round match"
+				],
+						"https://www.atptour.com/scores/archive/andrezieux/827/2003/draws?matchtype=doubles",
+						"w/os"
+				],
+						"https://www.atptour.com/scores/archive/asheville/673/1978/draws?matchtype=doubles",
+						"missing score, qualifier"
+				],
+						"https://www.atptour.com/scores/archive/asheville/673/1978/draws?matchtype=singles",
+						"nameless qualifier"
+				],
+						"https://www.atptour.com/scores/archive/bangkok/755/2002/draws?matchtype=singles",
+						"retirement after tiebreak"
+				],
+						"https://www.atptour.com/scores/archive/birmingham/350/1999/draws?matchtype=singles",
+						"partial score"
+				],
+						"https://www.atptour.com/scores/archive/campinas/259/1980/draws?matchtype=doubles",
+						"many byes"
+				],
+						"https://www.atptour.com/scores/archive/capetown/264/1990/draws?matchtype=singles",
+						"empty draw"
+				],
+						"https://www.atptour.com/scores/archive/heilbronn/460/1998/draws?matchtype=singles",
+						"number seed and wildcard"
+				],
+						"https://www.atptour.com/scores/archive/aachen/824/2006/draws?matchtype=doubles",
+						"match tiebreak"
+				],
+						"https://www.atptour.com/scores/archive/augsburg/8266/2019/draws?matchtype=doubles",
+						"(UNP)"
+				],
+						"https://www.atptour.com/scores/archive/ashkelon/216/1984/draws?matchtype=doubles",
+						"missing semifinals"
+				],
+						"https://www.atptour.com/scores/archive/bad-saarow/639/1996/draws?matchtype=doubles",
+						"missing after round 1"
+				],
+						"https://www.atptour.com/scores/archive/benin-city/242/1984/draws?matchtype=doubles",
+						"NAs after roundd 1"
+				],
+						"https://www.atptour.com/scores/archive/liege/180/1988/draws?matchtype=singles",
+						"first round only with byes"
+				],
+						"https://www.atptour.com/scores/archive/mendoza/566/1995/draws?matchtype=singles",
+						"33 players empty"
+				],
+						"https://www.atptour.com/scores/archive/wrexham/782/2002/draws?matchtype=singles",
+						"first rdound missing player"
+				],
+						"https://www.atptour.com/scores/archive/izmir/3834/2008/draws?matchtype=doubles",
+						"wrong ordered matches"
+				],
+						"https://www.atptour.com/scores/archive/beckenham/279/1980/draws?matchtype=doubles",
+						"qualifiers, byes, mssin scores"
+				],
+						"https://www.atptour.com/scores/archive/barcelona/552/1996/draws?matchtype=doubles",
+						"abandoned final round"
+				],
+						"https://www.atptour.com/scores/archive/benin-city/242/1983/draws?matchtype=doubles",
+						"abandoned match"
+				],
+						"https://www.atptour.com/scores/archive/nur-sultan/3618/2020/draws?matchtype=doubles",
+						"missing rounds"
+				],
+						"https://www.atptour.com/scores/archive/zell-am-see/286/1979/draws?matchtype=doubles",
+						"byes, missing scores"
+				],
+						"https://www.atptour.com/scores/archive/oberstaufen/833/2007/draws?matchtype=doubles",
+						"(UNP) scores, GE"
+				],
+						"https://www.atptour.com/scores/archive/cherbourg/398/2019/draws?matchtype=doubles",
+						"(UNP), (W/O), alternates, GE"
+				],
+						"https://www.atptour.com/scores/archive/olbia/643/1998/draws?matchtype=doubles",
+						"missing scores, byes, GE"
+				],
+						"https://www.atptour.com/scores/archive/potchefstroom/8371/2020/draws?matchtype=doubles",
+						"2 missing rounds"
+				],
+						"https://www.atptour.com/scores/archive/tallahassee/692/2003/draws?matchtype=doubles",
+						"match tiebreak retirement"
+				],
+						"https://www.atptour.com/scores/archive/bucharest/3669/2008/draws?matchtype=doubles",
+						"QUALIFIER1QUALIFIER2"
+				],
+						"https://www.atptour.com/scores/archive/rio-de-janeiro/299/1986/draws?matchtype=doubles",
+						"mixed up winners"
+				],
+						"https://www.atptour.com/scores/archive/little-rock/9188/2021/draws?matchtype=doubles",
+						"bottom player in doubles team shown instead of top, GE"
+				],
+						"https://www.atptour.com/scores/archive/santiago/883/1996/draws?matchtype=doubles",
+						"mixed up winners, GE"
+				],
+						"https://www.atptour.com/scores/archive/miami/3764/2008/draws?matchtype=doubles",
+						"mixed up winners, GE"
+				],
+						"https://www.atptour.com/scores/archive/muttenz/328/1972/draws?matchtype=singles",
+						"additional 3rd/4th place match"
+				],
+						"https://www.atptour.com/scores/archive/cairo/206/1986/draws?matchtype=singles",
+						"32 rounds missing rds 2+"
+				],
+						"https://www.atptour.com/scores/archive/stuttgart/321/1975/draws?matchtype=singles",
+						"8 players missing final"
+				],
+						"https://www.atptour.com/scores/archive/porto-alegre/235/1979/draws?matchtype=doubles",
+						"qualifier and non-qualifier as doubles team"
+				],
+						"https://www.atptour.com/scores/archive/charlotte/1505/1979/draws?matchtype=singles",
+						"standalone qualifier"
+				],
+						"https://www.atptour.com/scores/archive/ogun/203/1983/draws?matchtype=doubles,"
+						"mix of normal and match tiebreak deciders"
+				],
+						"https://www.atptour.com/scores/archive/sao-paulo/6406/2012/draws?matchtype=singles",
+						"rounds missing with final"
+				],
+						"https://www.atptour.com/scores/archive/dusseldorf/615/1985/draws?matchtype=singles",
+						"3rd/4th place match"
+				],
+						"https://www.atptour.com/scores/archive/london/2064/1972/draws?matchtype=singles",
+						"2 rounds"
+				],
+						"https://www.atptour.com/scores/archive/dusseldorf/615/2008/draws?matchtype=singles",
+						"round robin, GE"
+				],
+						"https://www.atptour.com/scores/archive/dusseldorf/615/2010/draws?matchtype=doubles",
+						"round robin different size"
+				],
+						"https://www.atptour.com/scores/archive/wimbledon/540/1920/draws?matchtype=singles"
+						"challenger round"
+        ]
+    ]
+}

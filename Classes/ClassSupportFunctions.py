@@ -3,8 +3,8 @@ import json
 import requests
 import time
 from bs4 import BeautifulSoup
-# from selenium import webdriver
-# from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 def GetCountrycode(filepath):
     filename = os.path.basename(filepath)
@@ -16,7 +16,10 @@ def GetSoup(path, headers):
     elif headers == False: # want request only
         return requests.get(path)
     elif headers == "json":
-        return json.loads(requests.get(path).text)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+        }
+        return json.loads(requests.get(path, headers=headers).text)
     elif headers == {}:
         response = requests.get(path).text
     else:
@@ -34,17 +37,34 @@ def SaveJSON(path, data):
     with open(path, 'w') as fp:
         json.dump(data, fp, sort_keys=True, indent=4)
 
+def LoadFile(path):
+    data = []
+    if os.path.exists(path):
+        with open(path, "r", encoding="ISO 8859-1") as infile:
+            data = infile.readlines()
+        data = [f.replace('\n', '') for f in data]
+    return data if data != None else []
+
+def SaveFile(path, data):
+    with open(path, "wb") as outfile:
+        data = [f.encode('utf-8') for f in data]
+        outfile.write(("\n".encode('utf-8')).join(data))
+
 def Dedupe(x):
     return list(dict.fromkeys(x))
 
-# def GetSoupSelenium(url):
-#     options = FirefoxOptions()
-#     options.add_argument("--headless")
-#     driver = webdriver.Firefox(options=options)
-#     driver.get(url)
-#     time.sleep(5) # wait for JavaScript to load
-#     source = driver.page_source
-#     soup = get_soup(source, True)
+def GetSoupSelenium(url, driver):
+    if driver == None:
+        options = FirefoxOptions()
+        options.add_argument("--headless")
+        driver = webdriver.Firefox(options=options)
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36")
+    driver.get(url)
+    time.sleep(2) # wait for JavaScript to load
+    source = driver.page_source
+    soup = GetSoup(source, True)
+    return soup, driver
 
 def LowerName(name):
     return name.lower().replace("-", "").replace(" ", "").replace(".", "")

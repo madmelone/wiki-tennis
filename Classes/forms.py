@@ -25,7 +25,7 @@ class FormPlayerTournamentwins(FlaskForm):
 
 class FormTournamentdraw(FlaskForm):
     language = SelectField('Wikipedia language', choices=[('en', 'en'), ('de', 'de')])
-    org = SelectField('Organisation', choices=[('itf', 'ITF')])
+    org = SelectField('Organisation', choices=[('itf', 'ITF'), ('atp', 'ATP')])
     url = StringField('Tournament link', validators=[DataRequired()])
     gender = SelectField('Gender (dewiki)', choices=[(1, "men's"), (0, "women's")])
     format = SelectField('Match format', choices=[(3, 'best of 3'), (5, 'best of 5'), (2, 'best of 3; tiebreak deciding set'), (35, 'best of 3; best of 5 final')])
