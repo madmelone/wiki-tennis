@@ -1,5 +1,5 @@
 # Name:     ITF Tournament scraper
-# Author:   Somnifuguist (w.wiki/fDy)
+# Author:   Somnifuguist
 # Date:     10-10-2020
 # Content:  Scrapes data from ITF printable draws
 
@@ -7,6 +7,9 @@ import datetime
 import itertools
 import math
 import re
+import sys
+
+sys.path.append('data')
 
 from ClassSupportFunctions import GetSoup
 
@@ -19,7 +22,7 @@ def ExtractTeam(team):
         if player == "":
             team_data.append(["","",[]])
         elif player == "BYE":
-            team_data.append(["BYE", "", []])
+            team_data.append(["BYE", "", [""]])
         else:
             country = re.search(r"\([A-Z]{3}\)", player).group()[1:4]
             seed = []
@@ -29,7 +32,10 @@ def ExtractTeam(team):
             types = ["LL", "WC", "Q", "PR", "Alt", "SR", "A", "SE", "ITF"]
             for t in types:
                 if "(" + t + ")" in player:
-                    seed.append(t)
+                    if t == "A":
+                        seed.append("Alt")
+                    else:
+                        seed.append(t)
             name = (player.replace("(" + country + ")", "").replace("(" + (seed[-1] if seed != [] else "") + ")", "").replace("()", "").replace("[" + (seed[0] if seed != [] else "")  + "]", "").strip(" ").replace(",", ""))
             team_data.append([name, country, seed])
     return team_data
@@ -64,12 +70,15 @@ def ExtractScore(score, match, winners):
                     elif len(new_score[-1]) == 2:
                         new_score[-1] += set # retirement happened mid-set
             elif set == ["Default"]:
-                if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
-                    new_score.append(['0', '0', "Default"]) # default happened after set finished
-                elif (len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1) or (int(new_score[-1][0]) + int(new_score[-1][1]) == 13):
-                    new_score.append(['0', '0', "Default"]) # default happened after tiebreak set finished
-                elif len(new_score[-1]) == 2:
-                    new_score[-1] += set # default happened mid-set
+                if len(new_score) == 1:
+                    new_score.append(['0', '0', "Default"]) # default happened before first game of match finished
+                else:
+                    if (max(int(new_score[-1][0]), int(new_score[-1][1])) > 5 and abs(int(new_score[-1][0]) - int(new_score[-1][1])) > 1):
+                        new_score.append(['0', '0', "Default"]) # default happened after set finished
+                    elif (len(new_score[-1]) == 3 and abs(int(new_score[-1][-1][0]) - int(new_score[-1][-1][1])) > 1) or (int(new_score[-1][0]) + int(new_score[-1][1]) == 13):
+                        new_score.append(['0', '0', "Default"]) # default happened after tiebreak set finished
+                    elif len(new_score[-1]) == 2:
+                        new_score[-1] += set # default happened mid-set
 
             elif set != [""]:
                 tiebreaker = re.search(r"\(\d{1,}\)", set[1])

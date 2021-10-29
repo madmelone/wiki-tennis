@@ -5,7 +5,8 @@ import re
 def ReverseTable(data):
     # Reverses the order of a wikimedia table. Can handle merged rows, but only in first column
     if data.count("|}") - data.count("|}}") == 1 and "wikitable" in data:
-        data = [f.strip().replace("↓", "↑") for f in data.split("\n")]
+        data = [f.strip() for f in data.split("\n")]
+        data = [f.replace("↓", "↑") if "↓" in f else f.replace("↑", "↓") for f in data]
         headers = [c for c,v in enumerate(data) if v != "" and v[0] == "!"]
         start_index = headers[-1] + 1
         for i,j in enumerate(headers,headers[0]):

@@ -1,5 +1,5 @@
 # Name:     Tournament draw generator (dewiki)
-# Author:   Somnifuguist (w.wiki/fDy)
+# Author:   Somnifuguist
 # Date:     10-10-2020
 # Content:  Generates wikitext for tennis tournament draws
 
@@ -20,8 +20,13 @@ corrections = []
 
 def GetNameCorrections():
     # Loads corrections from https://de.wikipedia.org/wiki/Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator
-    wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator", 'json')['query']['pages']['11514212']['revisions'][0]['*']
     change = [{}, {}] # {full name corrections}, {shortened name corrections};
+    page = "Benutzer:Siebenschl%C3%A4ferchen/Turnier-Generator"
+    try:
+        wikitext = GetSoup("https://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&&titles=" + page, 'json')['query']['pages']['11514212']['revisions'][0]['*']
+    except:
+        return change
+
     # {full name corrections}[player] = [[full link, shortened link], [full link for Russian, shortened link for Russian]]; Russian links are only used by GetNameLink() if player is Russian
     shortened = False
     for d in wikitext.split("\n* "):
@@ -56,9 +61,13 @@ def GetNameLink(name, country, mens):
     # Finds and returns formatted name and wikilinks for given name.
     if name == "":
         return ["", ""]
+    elif "qualifier" in name.lower() or name.lower() in ["bye", "player missing"]:
+        return ["Ziel="+name, "Ziel="+name]
+
     old_name = name
     name = name.replace(". ", ".").replace(".", ". ")
     split_name = name.split(" ")
+
     mixed_case = [f for f in split_name if (not f.islower() and not f.isupper()) or f.islower()]
     surname_index = 0
     if mixed_case != []:
@@ -139,22 +148,26 @@ def GetNameLink(name, country, mens):
 class Page():
     def __init__(self):
         self.text = [] # contains the draw wikitext
+        self.error = ""
 
 class Player():
     def __init__(self, player, date, mens):
         if player != None:
             country = ""
-            country = GetFlagDE(player[1], date)
+            if player[1] != "":
+                country = GetFlagDE(player[1], date)
             name_link = GetNameLink(player[0], country, mens)
             # 0: full name, 1: shortened name, 2: full name without nowrap (for seeds)
-            self.playertext = {0: "{{" + country + "|" + name_link[0] + "}}", 1: "{{" + country + "|" + name_link[1] + "}}", 2: "{{" + country + "|" + name_link[0] + "}}"}
+            def country_temp(country, name):
+                return "{{" + country + "|" + name + "}}" if country != "" else "[[" + name + "]]"
+            self.playertext = {0: country_temp(country, name_link[0]), 1: country_temp(country, name_link[1]), 2: country_temp(country, name_link[0])}
             length0 = len(name_link[0].split("|")[-1].replace("Ziel=", ""))
             length1 = len(name_link[1].split("|")[-1])
             if length0 > 10: # need to prevent name wrapping in draw bracket
                 self.playertext[0] = "{{nowrap|" + self.playertext[0] + "}}"
             if length1 > 10:
                 self.playertext[1] = "{{nowrap|" + self.playertext[1] + "}}"
-            self.seed = [f.replace("Alt", "ALT").replace("A", "ALT") for f in player[2]]
+            self.seed = [f.replace("Alt", "ALT") for f in player[2]]
         else:
             text = "{{nowrap|PLAYER MISSING}}"
             self.playertext = {0: text, 1: text, 2: text}
@@ -193,10 +206,13 @@ class Tournament():
         t.doubles = len(data[0][0][0]) == 2
         t.qual = qual
         t.byes = sum([match[2][1][0] == "BYE" for match in data[0]]) > 0
+        t.init = ["INIT"] in data[0][0][2]
         round_names = ["Erste Runde", "Zweite Runde", "Dritte Runde", "Vierte Runde", "Achtelfinale", "Viertelfinale", "Halbfinale", "Finale", "Sieg"]
         nonfinal = t.rounds < 5 # tournament starts with first round instead of final
         t.round_names = round_names[:t.rounds-1] + ["Qualifikationsrunde", "qualifiziert"] if t.qual else round_names[:t.rounds-4+nonfinal] + round_names[-5+nonfinal:]
-        t.template_size = 32 if t.rounds == 5 else 8 if (t.rounds == 6 and t.doubles) else 16 # template size for main draws
+        t.template_size = 32 if t.rounds == 5 else 8 if ((t.rounds == 6 and t.doubles) or t.rounds == 3) else 16 # template size for main draws
+        t.template = None
+        t.qual_index = 0
         SaveJSON("data/NamesDE.json", name_links)
 
     def SplitData(t, n, r):
@@ -247,11 +263,13 @@ class Tournament():
 
     def MakeSection(t, p, data, rounds, round_names, format, byes, compact, abbr):
         # Generates wikitext for section of draw, using standard templates like {{Turnierplan16-3}}.
-        p.text += ["{{" + "Turnierplan" + str(2**rounds) + ("-kompakt-" if compact else "-") + str(format) + ("-Freilos" if byes else "")]
+        if not t.qual or t.qual_index == 0:
+            template = ("{{Turnierplan" + str(2**rounds) + ("-kompakt-" if compact else "-") + str(format) + ("-Freilos" if byes else "")) if t.template == None else t.template
+            p.text += [template]
         for c, round in enumerate(round_names):
             p.text += ["| RD" + str(c+1) + "=" + round]
         for j in range(rounds):
-            team_no = 1
+            team_no = 1 if not t.qual else 2**(rounds-j) * t.qual_index + 1
             for match in data[j]:
                 p.text += [""]
                 retired = False
@@ -285,25 +303,36 @@ class Tournament():
 
                 for i in range(2): # add seed, team name/flag, score parameters for each team in given match
                     team = match.teams[i]
-                    bold = "'''" if match.winner == i else ""
+                    bold = "'''" if match.winner == i and not t.init else ""
                     name_text = "<br />&amp;nbsp;".join([(bold + f.playertext[abbr] + bold if not match.bye else "") for f in team])
                     rd = "| RD" + str(j+1) + "-"
                     num = "0" + str(team_no) if team_no < 10 and (rounds > 3 or compact) else str(team_no)
                     p.text += [rd + "seed" + num + "=" + ("" if match.bye else ("&amp;nbsp;" if team[0].seed == [] else (team[0].seed[0] if len(team[0].seed) == 1 else "{{nowrap|" + team[0].seed[0] + " <small>" + team[0].seed[1] + "</small>}}")))]
                     p.text += [rd + "team" + num + "=" + (name_text if name_text != "<br />&amp;nbsp;" else "")]
 
+                    match_tiebreak = t.match_tiebreak
+                    if t.match_tiebreak and set == 2 and len(match.score) > 1 and match.score[set+1][0].isdigit() and match.score[set+1][1].isdigit():
+                        if max(int(match.score[set+1][0]), int(match.score[set+1][1])) < 10:
+                            match_tiebreak = False
+                            if "match tiebreak" not in p.error:
+                                p.error += "\nERROR: Mix of match tiebreak scores and non-match tiebreak scores. Check all scores.\n"
+
                     for set in range(match.sets):
-                        p_score  = "" if match.bye else match.score[set+1][i]
+                        p_score  = "" if match.bye or t.init else match.score[set+1][i]
                         won_set = (i == match.score[0][1][set]) if set < len(match.score[0][1]) else 0 # no sets in byes/walkovers
                         p_score = "[" + p_score + "]" if t.match_tiebreak and set == 2 and p_score != "" else p_score # add square brackets for match tiebreak
                         p.text += [rd + "score" + num + "-" + str(set+1) + "=" + ("'''" + p_score + "'''" if won_set else p_score)]
                     team_no += 1
-        p.text += ["}}"]
+        t.qual_index += 1
+        if not t.qual or t.qual_index == len(t.data[-1]):
+            p.text += ["}}"]
 
     def MakeDraw(t, p, compact, abbr):
         if t.qual:
             p.text += ["", "=== Ergebnisse ==="]
             sections = t.SplitData(len(t.data[-1]), t.rounds)
+            rounds_str = "-".join([str(len(t.data[-1]) * (2)**(c)) for c in range(t.rounds + 1)][::-1])
+            t.template = "{{Turnierplan-Qualifikation-" + rounds_str + ("-Finale" if t.format == 53 else "")
             for i in range(len(sections)): # no logical section headings
                 ordinal = num2words(i+1, ordinal=True).capitalize()
                 t.MakeSection(p, data=sections[i], rounds=t.rounds, round_names=t.round_names[:-1], format=t.format, byes=t.byes, compact=compact, abbr=abbr)
@@ -351,4 +380,4 @@ def TournamentDrawOutputDE(data, date, format, mens, qual, compact, abbr):
     t = Tournament(data=data, mens=mens, format=format, qual=qual, date=date)
     t.MakeDraw(p, compact=compact, abbr=abbr)
     names = "" if new_names == empty_names else f"{new_names}</ul>"
-    return [names, "\n".join(p.text)]
+    return [names, p.error + "\n".join(p.text)]

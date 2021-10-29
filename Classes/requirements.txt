@@ -16,6 +16,8 @@ pyparsing
 qwikidata
 rdflib
 requests
+selenium
 six
 soupsieve
 urllib3
+webdriver_manager
